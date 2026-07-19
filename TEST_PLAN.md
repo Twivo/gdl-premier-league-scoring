@@ -1,202 +1,102 @@
-# Plan de test manuel - GenevaDartsConnect
+# Plan de test — poste de scoring
 
-Ce plan sert a verifier rapidement les parcours critiques apres une modification.
-Tester de preference en local et sur le site deploye.
+## 0. Validation automatique
 
-## 0. Preparation
+- [ ] `npm install`
+- [ ] `npm test`
+- [ ] `npm run build`
+- [ ] aucune erreur TypeScript, Vitest ou Vite ;
+- [ ] manifest et service worker PWA générés.
 
-- [ ] Installer les dependances: `npm install`.
-- [ ] Lancer les tests unitaires: `npm test`.
-- [ ] Lancer le build: `npm run build`.
-- [ ] Demarrer l'app: `npm run dev`.
-- [ ] En mode cloud, verifier que `.env.local` contient `VITE_SUPABASE_URL` et
-      `VITE_SUPABASE_ANON_KEY`.
+## 1. Menu de cible
 
-Donnees recommandees:
+- [ ] `#/` affiche uniquement le poste de scoring ;
+- [ ] aucun accès à la création de tournoi, entraînement, statistiques ou
+      championnat ;
+- [ ] une cible accepte uniquement un entier de 1 à 999 ;
+- [ ] la cible sélectionnée reste active après rafraîchissement ;
+- [ ] « Changer de cible » rouvre le sélecteur ;
+- [ ] FR/EN couvre tous les textes visibles.
 
-- [ ] au moins 8 joueurs actifs;
-- [ ] une equipe `Jedis` avec au moins 4 joueurs;
-- [ ] une autre equipe avec au moins 4 joueurs;
-- [ ] une saison courante.
+## 2. Affectations automatiques
 
-## 1. Accueil
+Préparer plusieurs fixtures avec des `target_number` différents.
 
-- [ ] Le logo GenevaDartsConnect s'affiche.
-- [ ] Le favicon est visible dans l'onglet navigateur.
-- [ ] Le switch FR/EN change les textes visibles.
-- [ ] Les boutons principaux sont visibles:
-  - Nouvelle partie d'entrainement;
-  - Match de championnat;
-  - En direct;
-  - Statistiques.
-- [ ] Le QR code "Scan to watch" pointe vers `#/live`.
-- [ ] Le bouton discret des regles droles ouvre puis ferme le popup.
-- [ ] Si aucun match n'est en cours, aucune carte de reprise n'apparait.
+- [ ] seules les fixtures de la cible sélectionnée sont affichées ;
+- [ ] les cibles connues sont proposées comme raccourcis ;
+- [ ] un changement `target_number` apparaît par Realtime ;
+- [ ] le polling actualise aussi la liste si Realtime est indisponible ;
+- [ ] le retour de focus actualise immédiatement la liste ;
+- [ ] les matchs en cours précèdent disponibles, bloqués puis terminés ;
+- [ ] le premier match jouable est marqué « Prochain ».
 
-## 2. Nouvelle partie d'entrainement
+## 3. Connexion et RLS
 
-- [ ] Ouvrir `#/new`.
-- [ ] Choisir 501 puis 601.
-- [ ] Choisir simple puis double.
-- [ ] Modifier le nombre de legs a gagner.
-- [ ] Ajouter les joueurs via la recherche instantanee.
-- [ ] En simple, l'app demande un joueur par cote.
-- [ ] En double, l'app demande deux joueurs par cote.
-- [ ] Choisir le starter manuellement.
-- [ ] Choisir le bull-up et verifier le popup de selection du gagnant.
-- [ ] Demarrer le match.
+- [ ] lecture des affectations sans connexion ;
+- [ ] clic sur un match à démarrer redirige vers la connexion ;
+- [ ] connexion avec le compte de scoring ;
+- [ ] démarrage et mise à jour autorisés pour `authenticated` ;
+- [ ] écriture refusée avec la seule clé anon ;
+- [ ] déconnexion disponible depuis le menu ;
+- [ ] aucune clé `service_role` dans le build.
 
-## 3. Scoring match
+## 4. Carte de match
 
-- [ ] Saisir un score valide puis valider.
-- [ ] Les scores restants, le joueur actif et l'historique se mettent a jour.
-- [ ] Les scores rapides valident immediatement.
-- [ ] Le bouton Bust apparait seulement quand il est pertinent.
-- [ ] Les finishes proposent les choix de flechettes possibles.
-- [ ] Un checkout termine le leg.
-- [ ] Le starter alterne au leg suivant.
-- [ ] Gagner le nombre de legs requis affiche l'ecran final.
-- [ ] Undo annule la derniere action.
-- [ ] Une visite peut etre modifiee si l'UI le permet.
-- [ ] La suppression de visite n'est pas disponible pendant un match.
-- [ ] Forfeit leg demande confirmation et attribue le leg a l'adversaire.
-- [ ] Forfeit match demande confirmation et termine le match.
+- [ ] Night, tour, Best of, joueurs, score et statut visibles ;
+- [ ] match sans deux joueurs non cliquable ;
+- [ ] match bloqué non cliquable ;
+- [ ] match terminé non cliquable ;
+- [ ] match disponible affiche « Démarrer » ;
+- [ ] match en cours affiche « Reprendre » ;
+- [ ] score live actualisé.
 
-## 4. Sauvegarde et reprise
+## 5. Scoring conservé
 
-- [ ] Pendant un match, rafraichir la page.
-- [ ] L'accueil affiche une carte "partie en cours".
-- [ ] Resume reprend exactement le bon score, leg et joueur actif.
-- [ ] En mode cloud, verifier la reprise depuis un autre navigateur/appareil.
-- [ ] En cas de perte reseau temporaire, verifier qu'aucune saisie n'est perdue
-      apres reconnexion.
+- [ ] choisir le starter du premier leg ;
+- [ ] 501, Double Out et format de la fixture corrects ;
+- [ ] clavier, boutons rapides, Bust et Miss ;
+- [ ] checkout et nombre de fléchettes ;
+- [ ] historique, modification et Undo ;
+- [ ] moyennes et legs gagnés ;
+- [ ] alternance automatique du starter ;
+- [ ] sauvegarde automatique et reprise après rafraîchissement ;
+- [ ] verrou multi-appareil ;
+- [ ] lecture seule proposée au poste verrouillé.
 
-## 5. Live public
+## 6. Fin et retour au menu
 
-- [ ] Ouvrir `#/live` sans etre connecte.
-- [ ] Les matchs en cours sont listables.
-- [ ] Ouvrir un match live.
-- [ ] Le live n'affiche aucun controle de scoring.
-- [ ] Depuis un autre onglet, scorer une visite et verifier la mise a jour live.
-- [ ] Terminer le match et verifier que le recap final reste lisible.
+- [ ] le leg décisif termine le match ;
+- [ ] vainqueur et score enregistrés ;
+- [ ] progression du tableau recalculée ;
+- [ ] les fixtures dépendantes sont débloquées ;
+- [ ] retour automatique à `#/` ;
+- [ ] le même numéro de cible est toujours sélectionné ;
+- [ ] le match terminé apparaît dans l’historique ;
+- [ ] le prochain match devient immédiatement identifiable.
 
-## 6. Statistiques / admin
+## 7. Formats Premier League
 
-- [ ] Ouvrir `#/admin`.
-- [ ] Sans session, l'ecran de login apparait.
-- [ ] Un mauvais mot de passe n'ouvre pas l'admin.
-- [ ] Une connexion valide donne acces aux sections admin.
-- [ ] Sign out ferme la session admin.
+- [ ] Nights 1–7 : Best of 5, premier à 3 ;
+- [ ] demi-finales de Finals : Best of 9, premier à 5 ;
+- [ ] finale de Finals : Best of 11, premier à 6 ;
+- [ ] Finals ne modifie pas les points de ligue ;
+- [ ] vainqueurs avancent dans les bons emplacements ;
+- [ ] résultats répétés ne doublent pas les points.
 
-## 7. Admin joueurs
+## 8. Données et SQL
 
-- [ ] Ajouter un joueur.
-- [ ] Renommer un joueur.
-- [ ] Desactiver puis reactiver un joueur.
-- [ ] Rechercher un joueur.
-- [ ] Trier la liste si le controle est disponible.
-- [ ] Supprimer un joueur sans match.
-- [ ] Verifier qu'un joueur avec historique ne peut pas etre supprime si la
-      base bloque l'operation; utiliser la desactivation a la place.
+- [ ] migration `0007_scoring_station_targets.sql` appliquée ;
+- [ ] `target_number` accepte null ou 1–999 ;
+- [ ] index `premier_league_fixtures_target_number_idx` présent ;
+- [ ] RLS existante de `premier_league_fixtures` inchangée ;
+- [ ] les trois liens Premier League sont présents sur `matches` ;
+- [ ] `encounter_id` reste null ;
+- [ ] anciens matchs et clés LocalStorage restent lisibles.
 
-## 8. Admin equipes
+## 9. Responsive/PWA
 
-- [ ] Creer une equipe.
-- [ ] Renommer une equipe.
-- [ ] Ouvrir le dialogue d'ajout joueur.
-- [ ] Rechercher un joueur dans le dialogue.
-- [ ] Selectionner un joueur et verifier l'ajout immediat.
-- [ ] Retirer un joueur de l'equipe.
-- [ ] Verifier qu'un joueur deja dans une equipe n'est pas propose comme membre
-      disponible d'une autre equipe.
-- [ ] Rechercher une equipe.
-- [ ] Supprimer une equipe et verifier que les joueurs restent disponibles.
-
-## 9. Match de championnat
-
-- [ ] Ouvrir `#/championship/new`.
-- [ ] Sans session admin, verifier la redirection login.
-- [ ] Apres login, verifier que l'equipe Jedis est preselectionnee a domicile.
-- [ ] Verifier que les autres equipes restent selectionnables.
-- [ ] Verifier que les autres equipes sont affichees plus discretement.
-- [ ] Choisir l'equipe adverse.
-- [ ] Demarrer la composition des premiers simples.
-- [ ] Les equipes doivent etre differentes.
-- [ ] Chaque equipe doit avoir au moins 4 joueurs.
-
-## 10. Composition championnat
-
-- [ ] Composer les 4 premiers simples.
-- [ ] Demarrer le match 1.
-- [ ] Faire le bull-up.
-- [ ] Verifier que le gagnant du bull commence.
-- [ ] Terminer un match.
-- [ ] Verifier que le score de rencontre augmente.
-- [ ] Passer au match suivant.
-- [ ] Apres 4 simples, composer les 2 doubles.
-- [ ] Apres les doubles, composer les 4 derniers simples.
-- [ ] Les matchs deja joues ne doivent pas etre modifies par la configuration.
-
-## 11. Championnat final et admin championnat
-
-- [ ] Terminer les 10 matchs.
-- [ ] L'ecran final affiche le vainqueur, le score et les stats.
-- [ ] Finish encounter revient a l'accueil.
-- [ ] Ouvrir `#/admin/championship`.
-- [ ] La rencontre apparait dans la liste.
-- [ ] Ouvrir la rencontre.
-- [ ] Ouvrir le detail d'un match.
-- [ ] Les forfaits s'affichent sans erreur si un match a ete termine par forfait.
-
-## 12. Dashboard statistiques
-
-- [ ] Ouvrir `#/admin/stats`.
-- [ ] Verifier les filtres: saison, joueur, type, variante, periode.
-- [ ] Trier plusieurs colonnes.
-- [ ] Selectionner un joueur et verifier son historique.
-- [ ] Ouvrir le detail d'un match.
-- [ ] Exporter en CSV.
-- [ ] Ouvrir le CSV dans un tableur et verifier les colonnes.
-- [ ] Les donnees potentiellement interpretees comme formules doivent etre
-      neutralisees dans l'export.
-
-## 13. Responsive
-
-- [ ] Mobile portrait: scoring utilisable sans zoom.
-- [ ] Tablette paysage: score et clavier restent lisibles.
-- [ ] Les textes des boutons ne debordent pas.
-- [ ] Les popups restent accessibles sur petit ecran.
-- [ ] Le logo d'accueil ne masque pas les boutons principaux.
-
-## 14. Securite
-
-- [ ] Les routes admin demandent une session.
-- [ ] Les routes championnat demandent une session.
-- [ ] Le live reste public et sans controle d'ecriture.
-- [ ] La cle `service_role` Supabase n'est jamais presente dans le frontend.
-- [ ] `npm audit --json` ne remonte aucune vulnerabilite connue.
-- [ ] Les nouveaux fichiers ne contiennent pas de token ou secret.
-
-## 15. Non-regression ciblee
-
-Apres une modification dans une zone, verifier au minimum:
-
-- UI accueil: sections 1 et 13;
-- setup/scoring: sections 2, 3 et 4;
-- live: section 5;
-- admin joueurs/equipes: sections 6, 7 et 8;
-- championnat: sections 9, 10 et 11;
-- stats/export: section 12;
-- securite/config: sections 6 et 14.
-
-## Rapport de bug
-
-Noter:
-
-- l'environnement: local ou prod;
-- le navigateur/appareil;
-- les donnees utilisees;
-- l'action faite;
-- le resultat attendu;
-- le resultat obtenu;
-- une capture si possible.
+- [ ] sélecteur utilisable sur téléphone, tablette et écran de soirée ;
+- [ ] cartes lisibles sans défilement horizontal ;
+- [ ] prochain match visible immédiatement ;
+- [ ] PWA installable et fonctionnelle après actualisation ;
+- [ ] GitHub Pages ouvre les routes `#/`, `#/login` et `#/game/:id`.

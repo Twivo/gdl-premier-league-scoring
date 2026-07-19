@@ -10,6 +10,7 @@ import type {
   Season,
   TeamRecord,
   TeamWithPlayers,
+  PremierLeagueCompetition,
 } from '../types';
 
 interface DbPlayer {
@@ -37,6 +38,9 @@ interface DbMatch {
   winner_participant: string | null;
   encounter_id: string | null;
   fixture_index: number | null;
+  premier_league_competition_id: string | null;
+  premier_league_night_id: string | null;
+  premier_league_fixture_id: string | null;
   created_at: string;
   updated_at: string;
   finished_at: string | null;
@@ -67,6 +71,9 @@ const toMatch = (r: DbMatch): MatchRecord => ({
   winnerParticipant: r.winner_participant,
   encounterId: r.encounter_id,
   fixtureIndex: r.fixture_index,
+  premierLeagueCompetitionId: r.premier_league_competition_id,
+  premierLeagueNightId: r.premier_league_night_id,
+  premierLeagueFixtureId: r.premier_league_fixture_id,
   createdAt: r.created_at,
   updatedAt: r.updated_at,
   finishedAt: r.finished_at,
@@ -144,9 +151,13 @@ export class SupabaseRepository implements DartsRepository {
     // Training matches (New Game, encounter_id IS NULL) and championship
     // matches are kept strictly apart: stats screens pass `championship` to
     // aggregate only championship play, never training games.
-    if (query.encounterId) q = q.eq('encounter_id', query.encounterId);
+    if (query.premierLeagueCompetitionId) {
+      q = q.eq('premier_league_competition_id', query.premierLeagueCompetitionId);
+    } else if (query.premierLeague) {
+      q = q.not('premier_league_fixture_id', 'is', null);
+    } else if (query.encounterId) q = q.eq('encounter_id', query.encounterId);
     else if (query.championship) q = q.not('encounter_id', 'is', null);
-    else q = q.is('encounter_id', null);
+    else q = q.is('encounter_id', null).is('premier_league_fixture_id', null);
     if (query.seasonId) q = q.eq('season_id', query.seasonId);
     if (query.mode) q = q.eq('mode', query.mode);
     if (query.status) q = q.eq('status', query.status);
@@ -188,6 +199,9 @@ export class SupabaseRepository implements DartsRepository {
       winner_participant: record.winnerParticipant ?? null,
       encounter_id: record.encounterId ?? null,
       fixture_index: record.fixtureIndex ?? null,
+      premier_league_competition_id: record.premierLeagueCompetitionId ?? null,
+      premier_league_night_id: record.premierLeagueNightId ?? null,
+      premier_league_fixture_id: record.premierLeagueFixtureId ?? null,
       finished_at: record.finishedAt ?? null,
     });
     if (error) throw error;
@@ -213,6 +227,7 @@ export class SupabaseRepository implements DartsRepository {
       .select('*')
       .eq('status', 'IN_PROGRESS')
       .is('encounter_id', null) // regular matches only
+      .is('premier_league_fixture_id', null)
       .order('updated_at', { ascending: false });
     if (error) throw error;
     return (data as DbMatch[]).map(toMatch);
@@ -224,6 +239,7 @@ export class SupabaseRepository implements DartsRepository {
       .from('matches')
       .select('*')
       .eq('status', 'IN_PROGRESS')
+      .is('premier_league_fixture_id', null)
       .order('updated_at', { ascending: false });
     if (error) throw error;
     return (data as DbMatch[]).map(toMatch);
@@ -339,7 +355,234 @@ export class SupabaseRepository implements DartsRepository {
     if (error) throw error;
     return (data as DbEncounter[]).map(toEncounter);
   }
+
+  // --- Premier League -------------------------------------------------------
+
+  async listPremierLeagueCompetitions(): Promise<PremierLeagueCompetition[]> {
+    const { data, error } = await this.sb
+      .from('premier_league_competitions')
+      .select(PL_SELECT)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return (data as unknown as DbPremierLeagueCompetition[]).map(toPremierLeagueCompetition);
+  }
+
+  async getPremierLeagueCompetition(
+    id: string,
+  ): Promise<PremierLeagueCompetition | null> {
+    const { data, error } = await this.sb
+      .from('premier_league_competitions')
+      .select(PL_SELECT)
+      .eq('id', id)
+      .maybeSingle();
+    if (error) throw error;
+    return data
+      ? toPremierLeagueCompetition(data as unknown as DbPremierLeagueCompetition)
+      : null;
+  }
+
+  async savePremierLeagueCompetition(
+    record: PremierLeagueCompetition,
+  ): Promise<void> {
+    const competitionResult = await this.sb.from('premier_league_competitions').upsert({
+      id: record.id,
+      season_id: record.seasonId,
+      name: record.name,
+      // The DB validates exactly eight entrants when leaving DRAFT. Creating
+      // the parent as DRAFT lets the normalized player rows be inserted first.
+      status: 'DRAFT',
+      champion_player_id: record.championPlayerId,
+      finals_scheduled_at: record.finalsScheduledAt ?? null,
+      settings: record.settings,
+      finished_at: record.finishedAt ?? null,
+    });
+    if (competitionResult.error) throw competitionResult.error;
+
+    const playerResult = await this.sb.from('premier_league_players').upsert(
+      record.players.map((player) => ({
+        competition_id: record.id,
+        player_id: player.playerId,
+        seed: player.seed,
+      })),
+      { onConflict: 'competition_id,player_id' },
+    );
+    if (playerResult.error) throw playerResult.error;
+
+    const nightResult = await this.sb.from('premier_league_nights').upsert(
+      record.nights.map((night) => ({
+        id: night.id,
+        competition_id: record.id,
+        night_number: night.nightNumber,
+        type: night.stage,
+        scheduled_at: night.scheduledAt ?? null,
+        status: night.status,
+        winner_player_id: night.winnerPlayerId,
+        finished_at: night.finishedAt ?? null,
+      })),
+    );
+    if (nightResult.error) throw nightResult.error;
+
+    const fixtureResult = await this.sb.from('premier_league_fixtures').upsert(
+      record.nights.flatMap((night) =>
+        night.fixtures.map((fixture) => ({
+          id: fixture.id,
+          night_id: night.id,
+          target_number: fixture.targetNumber ?? null,
+          round: fixture.round,
+          fixture_order: fixture.fixtureOrder,
+          player_a_id: fixture.playerAId,
+          player_b_id: fixture.playerBId,
+          player_a_seed: fixture.playerASeed ?? null,
+          player_b_seed: fixture.playerBSeed ?? null,
+          winner_player_id: fixture.winnerPlayerId,
+          match_id: fixture.matchId,
+          status: fixture.status,
+          best_of: fixture.bestOf,
+          legs_to_win: fixture.legsToWin,
+          legs_a: fixture.legsA,
+          legs_b: fixture.legsB,
+          finished_at: fixture.finishedAt ?? null,
+        })),
+      ),
+    );
+    if (fixtureResult.error) throw fixtureResult.error;
+
+    const finalResult = await this.sb
+      .from('premier_league_competitions')
+      .update({ status: record.status })
+      .eq('id', record.id);
+    if (finalResult.error) throw finalResult.error;
+  }
 }
+
+const PL_SELECT = `
+  *,
+  premier_league_players(*, players(name)),
+  premier_league_nights(*, premier_league_fixtures(*))
+`;
+
+interface DbPremierLeagueCompetition {
+  id: string;
+  season_id: string;
+  name: string;
+  status: PremierLeagueCompetition['status'];
+  settings: PremierLeagueCompetition['settings'];
+  champion_player_id: string | null;
+  finals_scheduled_at: string | null;
+  created_at: string;
+  updated_at: string;
+  finished_at: string | null;
+  premier_league_players: Array<{
+    player_id: string;
+    seed: number;
+    players: { name: string } | Array<{ name: string }>;
+  }>;
+  premier_league_nights: Array<{
+    id: string;
+    competition_id: string;
+    night_number: number | null;
+    type: PremierLeagueCompetition['nights'][number]['stage'];
+    scheduled_at: string | null;
+    status: PremierLeagueCompetition['nights'][number]['status'];
+    winner_player_id: string | null;
+    created_at: string;
+    updated_at: string;
+    finished_at: string | null;
+    premier_league_fixtures: Array<{
+      id: string;
+      night_id: string;
+      target_number: number | null;
+      round: PremierLeagueCompetition['nights'][number]['fixtures'][number]['round'];
+      fixture_order: number;
+      player_a_id: string | null;
+      player_b_id: string | null;
+      player_a_seed: number | null;
+      player_b_seed: number | null;
+      winner_player_id: string | null;
+      match_id: string | null;
+      status: PremierLeagueCompetition['nights'][number]['fixtures'][number]['status'];
+      best_of: 5 | 9 | 11;
+      legs_to_win: 3 | 5 | 6;
+      legs_a: number;
+      legs_b: number;
+      created_at: string;
+      updated_at: string;
+      finished_at: string | null;
+    }>;
+  }>;
+}
+
+function relationName(value: { name: string } | Array<{ name: string }>): string {
+  return Array.isArray(value) ? value[0]?.name ?? '' : value.name;
+}
+
+const toPremierLeagueCompetition = (
+  row: DbPremierLeagueCompetition,
+): PremierLeagueCompetition => ({
+  id: row.id,
+  seasonId: row.season_id,
+  name: row.name,
+  status: row.status,
+  settings: {
+    ...row.settings,
+    adminUnlockedNightNumbers: row.settings.adminUnlockedNightNumbers ?? [],
+  },
+  championPlayerId: row.champion_player_id,
+  finalsScheduledAt: row.finals_scheduled_at,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
+  finishedAt: row.finished_at,
+  players: row.premier_league_players
+    .map((player) => ({
+      playerId: player.player_id,
+      name: relationName(player.players),
+      seed: player.seed,
+    }))
+    .sort((a, b) => a.seed - b.seed),
+  nights: row.premier_league_nights
+    .map((night) => ({
+      id: night.id,
+      competitionId: night.competition_id,
+      nightNumber: night.night_number,
+      stage: night.type,
+      scheduledAt: night.scheduled_at,
+      status: night.status,
+      winnerPlayerId: night.winner_player_id,
+      createdAt: night.created_at,
+      updatedAt: night.updated_at,
+      finishedAt: night.finished_at,
+      fixtures: night.premier_league_fixtures
+        .map((fixture) => ({
+          id: fixture.id,
+          nightId: fixture.night_id,
+          targetNumber: fixture.target_number,
+          round: fixture.round,
+          fixtureOrder: fixture.fixture_order,
+          playerAId: fixture.player_a_id,
+          playerBId: fixture.player_b_id,
+          playerASeed: fixture.player_a_seed,
+          playerBSeed: fixture.player_b_seed,
+          winnerPlayerId: fixture.winner_player_id,
+          matchId: fixture.match_id,
+          status: fixture.status,
+          bestOf: fixture.best_of,
+          legsToWin: fixture.legs_to_win,
+          legsA: fixture.legs_a,
+          legsB: fixture.legs_b,
+          createdAt: fixture.created_at,
+          updatedAt: fixture.updated_at,
+          finishedAt: fixture.finished_at,
+        }))
+        .sort((a, b) => {
+          const rounds = { QUARTER_FINAL: 0, SEMI_FINAL: 1, FINAL: 2 };
+          return rounds[a.round] - rounds[b.round] || a.fixtureOrder - b.fixtureOrder;
+        }),
+    }))
+    .sort((a, b) => {
+      if (a.stage !== b.stage) return a.stage === 'LEAGUE' ? -1 : 1;
+      return (a.nightNumber ?? 8) - (b.nightNumber ?? 8);
+    }),
+});
 
 interface DbEncounter {
   id: string;

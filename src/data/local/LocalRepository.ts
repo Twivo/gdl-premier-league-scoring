@@ -13,6 +13,7 @@ import type {
   Season,
   TeamRecord,
   TeamWithPlayers,
+  PremierLeagueCompetition,
 } from '../types';
 
 const PLAYERS_KEY = 'darts:players:v2';
@@ -20,6 +21,23 @@ const MATCHES_KEY = 'darts:matches:v2';
 const TEAMS_KEY = 'darts:teams:v1';
 const TEAM_PLAYERS_KEY = 'darts:team-players:v1';
 const ENCOUNTERS_KEY = 'darts:encounters:v1';
+export const PREMIER_LEAGUE_KEY = 'darts:premier-league:competitions:v1';
+
+function withLegacyLocalTargets(
+  competition: PremierLeagueCompetition,
+): PremierLeagueCompetition {
+  return {
+    ...competition,
+    nights: competition.nights.map((night) => ({
+      ...night,
+      fixtures: night.fixtures.map((fixture) =>
+        fixture.targetNumber === undefined
+          ? { ...fixture, targetNumber: fixture.fixtureOrder }
+          : fixture,
+      ),
+    })),
+  };
+}
 
 const LOCAL_SEASON: Season = {
   id: 'local-2026-2027',
@@ -100,11 +118,19 @@ export class LocalRepository implements DartsRepository {
 
   async listMatches(query: MatchQuery = {}): Promise<MatchRecord[]> {
     let matches = read<MatchRecord[]>(MATCHES_KEY, []);
-    matches = query.encounterId
-      ? matches.filter((m) => m.encounterId === query.encounterId)
-      : query.championship
-        ? matches.filter((m) => !!m.encounterId)
-        : matches.filter((m) => !m.encounterId);
+    if (query.premierLeagueCompetitionId) {
+      matches = matches.filter(
+        (m) => m.premierLeagueCompetitionId === query.premierLeagueCompetitionId,
+      );
+    } else if (query.premierLeague) {
+      matches = matches.filter((m) => !!m.premierLeagueFixtureId);
+    } else if (query.encounterId) {
+      matches = matches.filter((m) => m.encounterId === query.encounterId);
+    } else if (query.championship) {
+      matches = matches.filter((m) => !!m.encounterId);
+    } else {
+      matches = matches.filter((m) => !m.encounterId && !m.premierLeagueFixtureId);
+    }
     if (query.mode) matches = matches.filter((m) => m.mode === query.mode);
     if (query.status) matches = matches.filter((m) => m.status === query.status);
     if (query.playerId)
@@ -137,7 +163,7 @@ export class LocalRepository implements DartsRepository {
 
   async listLiveMatches(): Promise<MatchRecord[]> {
     const all = read<MatchRecord[]>(MATCHES_KEY, []).filter(
-      (m) => m.status === 'IN_PROGRESS',
+      (m) => m.status === 'IN_PROGRESS' && !m.premierLeagueFixtureId,
     );
     return all.sort((a, b) =>
       (a.updatedAt ?? '') < (b.updatedAt ?? '') ? 1 : -1,
@@ -232,5 +258,37 @@ export class LocalRepository implements DartsRepository {
     return (await this.listEncounters()).filter(
       (e) => e.status === 'IN_PROGRESS',
     );
+  }
+
+  // --- Premier League -------------------------------------------------------
+
+  async listPremierLeagueCompetitions(): Promise<PremierLeagueCompetition[]> {
+    return read<PremierLeagueCompetition[]>(PREMIER_LEAGUE_KEY, [])
+      .map(withLegacyLocalTargets)
+      .sort((a, b) =>
+        (a.createdAt ?? '') < (b.createdAt ?? '') ? 1 : -1,
+      );
+  }
+
+  async getPremierLeagueCompetition(
+    id: string,
+  ): Promise<PremierLeagueCompetition | null> {
+    return (
+      read<PremierLeagueCompetition[]>(PREMIER_LEAGUE_KEY, [])
+        .map(withLegacyLocalTargets)
+        .find((competition) => competition.id === id) ?? null
+    );
+  }
+
+  async savePremierLeagueCompetition(
+    record: PremierLeagueCompetition,
+  ): Promise<void> {
+    const competitions = read<PremierLeagueCompetition[]>(PREMIER_LEAGUE_KEY, []);
+    const index = competitions.findIndex((competition) => competition.id === record.id);
+    const now = new Date().toISOString();
+    const stamped = { ...record, updatedAt: now };
+    if (index >= 0) competitions[index] = stamped;
+    else competitions.push({ ...stamped, createdAt: record.createdAt ?? now });
+    write(PREMIER_LEAGUE_KEY, competitions);
   }
 }

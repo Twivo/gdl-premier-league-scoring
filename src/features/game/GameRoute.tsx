@@ -1,19 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { GameProvider } from '@/store/GameContext';
-import { loadMatch } from '@/store/matchService';
+import { GameProvider, useGame } from '@/store/GameContext';
+import { loadMatch, persistMatch } from '@/store/matchService';
 import { acquireLock, releaseLock, LOCK_HEARTBEAT_MS } from '@/store/matchLock';
 import { useAuth } from '@/store/AuthContext';
 import { useT } from '@/store/LangContext';
 import { Button } from '@/components/ui/Button';
 import { AdminLogin } from '@/features/admin/AdminLogin';
 import type { MatchRecord } from '@/data/types';
+import { completePremierLeagueFixture } from '@/store/premierLeagueService';
+import { premierLeagueErrorText } from '@/features/premierLeague/errors';
+import { officialTerminalLegScore } from '@/domain/premierLeague';
 import { GameScreen } from './GameScreen';
 
 export function GameRoute() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, adminAvailable } = useAuth();
   const { t } = useT();
   const [match, setMatch] = useState<MatchRecord | null>(null);
   const [loading, setLoading] = useState(true);
@@ -39,7 +42,8 @@ export function GameRoute() {
   // (no visits yet) is public, like normal scoring.
   const isResume =
     !!match && match.events.length > 0 && match.status === 'IN_PROGRESS';
-  const needsPassword = isResume && !user;
+  const isPremierLeague = !!match?.premierLeagueFixtureId;
+  const needsPassword = adminAvailable && (isResume || isPremierLeague) && !user;
 
   // Take control (heartbeat lock) once we're actually allowed to score.
   useEffect(() => {
@@ -117,9 +121,95 @@ export function GameRoute() {
       seasonId={match.seasonId}
       config={match.config}
       initialEvents={match.events}
+      premierLeagueCompetitionId={match.premierLeagueCompetitionId}
+      premierLeagueNightId={match.premierLeagueNightId}
+      premierLeagueFixtureId={match.premierLeagueFixtureId}
       onEnd={() => navigate('/', { replace: true })}
     >
-      <GameScreen />
+      {isPremierLeague ? <PremierLeagueGameSession match={match} /> : <GameScreen />}
     </GameProvider>
+  );
+}
+
+function PremierLeagueGameSession({ match }: { match: MatchRecord }) {
+  const navigate = useNavigate();
+  const { t } = useT();
+  const { config, events, state } = useGame();
+  const completed = useRef(false);
+  const [error, setError] = useState<string | null>(null);
+  const [retry, setRetry] = useState(0);
+
+  useEffect(() => {
+    if (state.status !== 'GAME_OVER' || completed.current) return;
+    completed.current = true;
+    const winnerPart = config.participants.find((part) => part.id === state.winnerId);
+    const winnerPlayerId = winnerPart?.playerIds[0];
+    if (!winnerPlayerId) {
+      setError(t('premierLeague.errorWinner'));
+      return;
+    }
+    const completedMatch: MatchRecord = {
+      ...match,
+      config,
+      events,
+      status: 'GAME_OVER',
+      winnerParticipant: state.winnerId ?? null,
+      finishedAt: new Date().toISOString(),
+    };
+    const officialScore = officialTerminalLegScore(
+      config.legsToWin as 3 | 5 | 6,
+      state.winnerId === 'A' ? 'A' : 'B',
+      state.legsWon.A ?? 0,
+      state.legsWon.B ?? 0,
+    );
+    void (async () => {
+      try {
+        await persistMatch(completedMatch);
+        await completePremierLeagueFixture(
+          completedMatch,
+          winnerPlayerId,
+          officialScore.legsA,
+          officialScore.legsB,
+        );
+        navigate('/', { replace: true });
+      } catch (cause) {
+        setError(
+          premierLeagueErrorText(t, cause),
+        );
+      }
+    })();
+  }, [config, events, match, navigate, retry, state, t]);
+
+  return (
+    <GameScreen
+      onGameOver={() => undefined}
+      gameOverContent={
+        <div className="mx-auto flex min-h-screen max-w-sm flex-col items-center justify-center gap-5 px-6 text-center">
+          <div className="text-5xl">🏆</div>
+          <p className="text-lg font-bold">
+            {error
+              ? t('premierLeague.resultSaveFailed')
+              : t('premierLeague.matchFinishedSaving')}
+          </p>
+          {error && (
+            <>
+              <p className="text-sm text-[var(--color-warning)]">{error}</p>
+              <Button
+                variant="accent"
+                size="lg"
+                fullWidth
+                onClick={() => {
+                  setError(null);
+                  completed.current = false;
+                  setRetry((value) => value + 1);
+                }}
+              >
+                {t('premierLeague.retry')}
+              </Button>
+            </>
+          )}
+        </div>
+      }
+    />
   );
 }

@@ -12,6 +12,7 @@ import type {
   Season,
   TeamRecord,
   TeamWithPlayers,
+  PremierLeagueCompetition,
 } from './types';
 
 export interface PlayerInput {
@@ -54,6 +55,11 @@ export interface DartsRepository {
   saveEncounter(record: EncounterRecord): Promise<void>;
   listEncounters(seasonId?: string): Promise<EncounterRecord[]>;
   listEncountersInProgress(): Promise<EncounterRecord[]>;
+
+  // Premier League (separate aggregate; standings remain derived) ----------
+  listPremierLeagueCompetitions(): Promise<PremierLeagueCompetition[]>;
+  getPremierLeagueCompetition(id: string): Promise<PremierLeagueCompetition | null>;
+  savePremierLeagueCompetition(record: PremierLeagueCompetition): Promise<void>;
 }
 
 // --- Authentication --------------------------------------------------------

@@ -57,6 +57,9 @@ export function GameProvider({
   initialEvents,
   encounterId,
   fixtureIndex,
+  premierLeagueCompetitionId,
+  premierLeagueNightId,
+  premierLeagueFixtureId,
   onEnd,
   children,
 }: {
@@ -67,6 +70,9 @@ export function GameProvider({
   /** Championship link, preserved on every auto-save. */
   encounterId?: string | null;
   fixtureIndex?: number | null;
+  premierLeagueCompetitionId?: string | null;
+  premierLeagueNightId?: string | null;
+  premierLeagueFixtureId?: string | null;
   onEnd?: () => void;
   children: ReactNode;
 }) {
@@ -100,6 +106,9 @@ export function GameProvider({
       winnerParticipant: state.winnerId ?? null,
       encounterId: encounterId ?? null,
       fixtureIndex: fixtureIndex ?? null,
+      premierLeagueCompetitionId: premierLeagueCompetitionId ?? null,
+      premierLeagueNightId: premierLeagueNightId ?? null,
+      premierLeagueFixtureId: premierLeagueFixtureId ?? null,
       finishedAt:
         state.status === 'GAME_OVER' ? new Date().toISOString() : null,
     };
@@ -113,6 +122,9 @@ export function GameProvider({
     state.winnerId,
     encounterId,
     fixtureIndex,
+    premierLeagueCompetitionId,
+    premierLeagueNightId,
+    premierLeagueFixtureId,
   ]);
 
   useEffect(() => {

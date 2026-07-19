@@ -15,10 +15,10 @@ export default defineConfig({
       injectRegister: 'auto',
       includeAssets: ['favicon.png', 'apple-touch-icon.png', 'app-icon.png'],
       manifest: {
-        name: 'GenevaDartsConnect — 501 / 601 scoring',
-        short_name: 'GenevaDartsConnect',
+        name: 'GenevaDartsConnect — scoring station',
+        short_name: 'Darts Scoring',
         description:
-          'Touch-first darts scoring: 501/601 Double Out, team championship, live stats.',
+          'Touch-first scoring station with automatic target assignments.',
         theme_color: '#0b0f14',
         background_color: '#0b0f14',
         display: 'standalone',

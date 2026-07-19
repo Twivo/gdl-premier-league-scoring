@@ -1,147 +1,103 @@
 # Guide agent IA
 
-Ce fichier sert de repere rapide pour les LLM et contributeurs qui travaillent
-sur GenevaDartsConnect.
+Ce fichier est la référence rapide pour travailler sur GenevaDartsConnect.
 
-## Objectif produit
+## Objectif produit actuel
 
-GenevaDartsConnect est une application de scoring et de statistiques darts,
-orientee en priorite vers les matchs a domicile des Jedis.
+L’interface publique est uniquement un poste de scoring. La création du tournoi,
+des tableaux, des joueurs et l’affectation des cibles appartiennent à un site de
+gestion externe.
 
-L'application doit rester:
+Le parcours principal est : choisir une cible, afficher automatiquement ses
+matchs, scorer avec le moteur X01 existant, puis revenir au même menu de cible.
 
-- rapide a utiliser pendant un match;
-- fiable pour les stats de championnat;
-- lisible sur mobile et tablette;
-- compatible avec les donnees existantes;
-- utilisable en mode local sans Supabase;
-- utilisable en mode cloud avec Supabase.
+L’application reste mobile/tablette, PWA, compatible GitHub Pages, utilisable
+sans Supabase et compatible avec les données historiques.
 
-## Architecture rapide
+## Architecture
 
-- `src/domain`: logique metier pure, sans React ni I/O.
-- `src/domain/rules`: validation X01, bust, checkout, ordre de lancer.
-- `src/domain/championship`: logique pure des rencontres par equipes.
-- `src/data`: interfaces repository/auth + implementations local/Supabase.
-- `src/store`: contextes React, persistence, live, verrouillage et orchestration.
-- `src/features`: ecrans organises par domaine fonctionnel.
-- `src/components`: composants reutilisables.
-- `src/store/LangContext.tsx`: dictionnaire FR/EN des textes visibles.
-- `supabase/migrations`: schema SQL et policies RLS.
+- `src/domain` : logique métier pure.
+- `src/domain/rules` : validation X01, bust, checkout et ordre de lancer.
+- `src/domain/premierLeague` : tableaux, progression, points et filtrage cible.
+- `src/features/scoringStation` : accueil, sélection de cible et connexion.
+- `src/features/game` : unique écran de scoring partagé.
+- `src/data` : contrats et dépôts LocalStorage/Supabase.
+- `src/store/premierLeagueService.ts` : création du match et résultat.
+- `src/store/premierLeagueLive.ts` : Realtime avec polling côté écran.
+- `src/store/LangContext.tsx` : tous les textes visibles FR/EN.
+- `supabase/migrations` : schéma et RLS.
 
-## Routes principales
+## Routes exposées
 
-- `/`: accueil.
-- `/new`: nouvelle partie d'entrainement.
-- `/game/:id`: match en cours.
-- `/live`: liste des matchs live.
-- `/live/:id`: live read-only d'un match.
-- `/championship/new`: creation rencontre championnat, login requis.
-- `/championship/:id`: deroulement rencontre championnat, login requis.
-- `/admin/players`: gestion joueurs.
-- `/admin/teams`: gestion equipes.
-- `/admin/stats`: statistiques joueurs.
-- `/admin/championship`: historique championnat.
-- `/admin/review`: bilan de saison.
+- `/` : menu de cible et matchs affectés.
+- `/login` : connexion du compte de scoring.
+- `/game/:id` : scoring partagé.
+- `/live/:id` : lecture seule en cas de verrou.
 
-Le routeur est un `HashRouter`: les URLs finales utilisent `#/...`.
+Le routeur reste un `HashRouter`. Les écrans de création, entraînement,
+statistiques et championnat peuvent rester dans le code mais ne doivent pas
+être routés dans la PWA de scoring.
 
-## Commandes utiles
+## Affectation des cibles
 
-```bash
-npm run dev
-npm test
-npm run build
-npm run preview
-```
+`premier_league_fixtures.target_number` est la source de vérité. Valeur
+autorisée : null ou entier de 1 à 999.
 
-Avant de terminer une modification UI ou documentation liee au build:
+Le numéro sélectionné sur le poste est conservé sous
+`darts:scoring-station:target:v1`. Ne pas le mélanger aux données de match.
 
-```bash
-npm run build
-```
+La liste se met à jour par Realtime, polling cinq secondes et focus de fenêtre.
+Un match est cliquable seulement si ses joueurs sont connus, sa progression le
+permet et il n’est pas terminé.
 
-Pour une modification de logique darts, championnat ou stats:
+## Moteur et séparation des données
 
-```bash
-npm test
-npm run build
-```
+Ne jamais dupliquer le moteur X01 dans React ou dans la Premier League. Un match
+reste reconstruit depuis `config + events`.
 
-Pour une verification securite dependances:
+- championnat historique : `encounter_id` ;
+- Premier League : `premier_league_competition_id`,
+  `premier_league_night_id`, `premier_league_fixture_id` ;
+- entraînement : aucun de ces liens.
 
-```bash
-npm audit --json
-```
+Conserver clavier, boutons rapides, Bust, checkout, fléchettes, édition, stats,
+alternance du starter, auto-save, reprise et verrou multi-appareil.
 
-## Conventions de travail
+Après un résultat Premier League, sauvegarder, progresser le tableau puis
+naviguer vers `/`. La cible mémorisée doit rester sélectionnée.
 
-- Faire des changements minimaux et scopes a la demande.
-- Ne pas refactoriser globalement sans demande explicite.
-- Ne pas casser la compatibilite des donnees existantes.
-- Verifier `git status --short` avant de modifier puis avant de repondre.
-- Ne pas ecraser ni annuler des changements locaux non lies.
-- Ne jamais stocker de token, secret ou identifiant prive dans le code, les docs
-  ou la config Git.
-- Ne pas ajouter de dependance sans raison claire.
-- Preferer une correction locale a une abstraction generale prematuree.
+## Local et Supabase
+
+Les anciennes clés LocalStorage ne doivent jamais être renommées ou supprimées.
+Le mode local conserve `darts:premier-league:competitions:v1`.
+
+Les données sont lisibles publiquement mais modifiables uniquement par
+`authenticated`. Aucun secret ni clé `service_role` dans le frontend.
+
+Migration actuelle : `0007_scoring_station_targets.sql`.
+Script manuel : `supabase/scoring_station_deployment.sql`.
+Script base neuve : `supabase/full_deployment_from_scratch.sql`.
 
 ## Internationalisation
 
-- Aucun texte visible nouveau ne doit etre hardcode dans les composants.
-- Ajouter les libelles dans `DICT` de `src/store/LangContext.tsx`.
-- Toujours fournir `en` et `fr`.
-- Utiliser `useT()` et `t('cle')` dans les composants.
-- Verifier que le switch FR/EN ne cree pas de melange de langues.
+Aucun texte visible hardcodé. Ajouter chaque libellé en anglais et français dans
+`DICT`, puis utiliser `useT()`.
 
-## Logique match
+## Commandes obligatoires
 
-- Un match est reconstruit depuis `config + events`.
-- La logique de score doit rester dans `src/domain`.
-- Eviter de dupliquer les regles de darts dans les composants UI.
-- Une visite peut rester modifiable si l'UI le permet.
-- Ne pas reintroduire la suppression de visite pendant un match sans demande
-  explicite.
-- Conserver les formats de `MatchRecord`, `GameEvent`, equipes, saisons et
-  rencontres.
+```bash
+npm install
+npm test
+npm run build
+npm audit --json
+```
 
-## Championnat
+## Conventions
 
-- Le championnat est pense pour les Jedis a domicile.
-- Dans la selection des equipes, les Jedis sont preselectionnes a domicile.
-- Les autres equipes doivent rester selectionnables manuellement.
-- Une rencontre contient 10 matchs: 4 simples, 2 doubles, 4 simples.
-- Les matchs de championnat sont lies a un `encounter_id`.
-- Les stats championnat doivent rester separees des matchs d'entrainement.
-
-## Admin et donnees
-
-- Joueurs, equipes, saisons et championnat sont des zones admin.
-- L'app peut tourner sans Supabase: ne pas rendre le mode local inutilisable.
-- Les changements de texte, filtres et dialogues ne doivent pas modifier les
-  donnees stockees.
-- Les listes longues de joueurs doivent privilegier recherche instantanee et
-  selection directe.
-
-## Securite
-
-- Supabase anon key: publique par design.
-- Jamais de cle `service_role` dans le frontend.
-- Les protections critiques doivent etre cote base via RLS, pas seulement dans
-  React.
-- Le live doit rester read-only.
-- Les exports CSV doivent neutraliser les cellules de type formule.
-- Toute nouvelle table Supabase doit avoir RLS activee et des policies claires.
-- Toute nouvelle connexion externe doit etre compatible avec la CSP de
-  `index.html`.
-
-## Documentation
-
-- `README.md`: vue d'ensemble projet et architecture.
-- `MODE_D_EMPLOI.md`: guide utilisateur de l'application.
-- `SUPABASE_SETUP.md`: configuration backend cloud.
-- `TEST_PLAN.md`: verification manuelle.
-- `agent.md`: consignes pour assistants IA/contributeurs.
-
-Quand un comportement change, mettre a jour la documentation correspondante dans
-le meme changement si possible.
+- changements minimaux et ciblés ;
+- aucun refactoring global inutile ;
+- aucune dépendance sans justification ;
+- conserver les formats et données historiques ;
+- vérifier `git status --short` avant de terminer ;
+- mettre à jour README, mode d’emploi, Supabase et plan de test avec tout
+  changement de comportement.

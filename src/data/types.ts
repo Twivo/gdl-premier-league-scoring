@@ -5,6 +5,9 @@
  */
 import type { GameConfig, GameEvent } from '@/domain/types';
 import type { EncounterPlan, Side } from '@/domain/championship/types';
+import type { PremierLeagueCompetition } from '@/domain/premierLeague';
+
+export type { PremierLeagueCompetition };
 
 export interface Season {
   id: string;
@@ -40,6 +43,10 @@ export interface MatchRecord {
   /** Championship link (null for regular matches). */
   encounterId?: string | null;
   fixtureIndex?: number | null;
+  /** Premier League links (always null for training and team championship). */
+  premierLeagueCompetitionId?: string | null;
+  premierLeagueNightId?: string | null;
+  premierLeagueFixtureId?: string | null;
   createdAt?: string;
   updatedAt?: string;
   finishedAt?: string | null;
@@ -66,6 +73,9 @@ export interface MatchQuery {
   encounterId?: string | null;
   /** All championship matches (encounter_id IS NOT NULL) — for stats screens. */
   championship?: boolean;
+  /** All Premier League matches, or those from one competition. */
+  premierLeague?: boolean;
+  premierLeagueCompetitionId?: string;
 }
 
 // --- championship ----------------------------------------------------------
