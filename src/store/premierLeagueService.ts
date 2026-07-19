@@ -1,15 +1,7 @@
 import { getRepository } from '@/data';
-import { buildGameState } from '@/domain/engine';
 import {
-  PREMIER_LEAGUE_SETTINGS,
   canStartFixture,
-  correctionBlockReason,
-  generateLeagueNights,
   recordFixtureResult,
-  reopenFixtureResult,
-  replaceQuarterFinals,
-  validateCompetitionPlayers,
-  withFinalsNight,
   type PremierLeagueCompetition,
   type PremierLeagueFixture,
 } from '@/domain/premierLeague';
@@ -17,31 +9,16 @@ import { createUuid } from '@/lib/id';
 import type { MatchRecord } from '@/data/types';
 import { persistMatch } from './matchService';
 
-export interface CreatePremierLeagueInput {
-  name: string;
-  seasonId: string;
-  playerIds: string[];
-  nightDates?: Array<string | null>;
-  finalsDate?: string | null;
-}
-
-const uuidFactory = () => createUuid();
+// This app is a scoring station only. Creating competitions, seeding players,
+// scheduling Nights, editing brackets, generating the Finals bracket and
+// admin overrides are owned by the external tournament website. Here we only
+// read the assignments it publishes, run the match, and write results back.
 
 export async function listPremierLeagueCompetitions(): Promise<PremierLeagueCompetition[]> {
   try {
     return await getRepository().listPremierLeagueCompetitions();
   } catch {
     return [];
-  }
-}
-
-export async function loadPremierLeagueCompetition(
-  id: string,
-): Promise<PremierLeagueCompetition | null> {
-  try {
-    return await getRepository().getPremierLeagueCompetition(id);
-  } catch {
-    return null;
   }
 }
 
@@ -52,54 +29,6 @@ export async function loadCurrentPremierLeagueCompetition(): Promise<PremierLeag
     competitions[0] ??
     null
   );
-}
-
-export async function persistPremierLeagueCompetition(
-  competition: PremierLeagueCompetition,
-): Promise<void> {
-  await getRepository().savePremierLeagueCompetition(competition);
-}
-
-export async function createPremierLeagueCompetition(
-  input: CreatePremierLeagueInput,
-): Promise<PremierLeagueCompetition> {
-  const name = input.name.trim();
-  if (!name) throw new Error('COMPETITION_NAME_REQUIRED');
-  validateCompetitionPlayers(input.playerIds);
-  const repo = getRepository();
-  const [seasons, roster] = await Promise.all([
-    repo.listSeasons(),
-    repo.listPlayers(),
-  ]);
-  if (!seasons.length || !seasons.some((season) => season.id === input.seasonId)) {
-    throw new Error('SEASON_REQUIRED');
-  }
-  const byId = new Map(roster.map((player) => [player.id, player]));
-  if (input.playerIds.some((id) => !byId.has(id))) throw new Error('PLAYER_NOT_FOUND');
-
-  const id = createUuid();
-  const players = input.playerIds.map((playerId, index) => ({
-    playerId,
-    name: byId.get(playerId)!.name,
-    seed: index + 1,
-  }));
-  const now = new Date().toISOString();
-  const competition: PremierLeagueCompetition = {
-    id,
-    seasonId: input.seasonId,
-    name,
-    status: 'IN_PROGRESS',
-    settings: PREMIER_LEAGUE_SETTINGS,
-    players,
-    nights: generateLeagueNights(id, players, uuidFactory, input.nightDates),
-    finalsScheduledAt: input.finalsDate ?? null,
-    championPlayerId: null,
-    createdAt: now,
-    updatedAt: now,
-    finishedAt: null,
-  };
-  await repo.savePremierLeagueCompetition(competition);
-  return competition;
 }
 
 function fixtureConfig(
@@ -195,98 +124,11 @@ export async function completePremierLeagueFixture(
     ?.fixtures.find((fixture) => fixture.id === fixtureId);
   if (existing?.status === 'FINISHED') return competition;
 
-  let updated = recordFixtureResult(competition, nightId, fixtureId, {
+  const updated = recordFixtureResult(competition, nightId, fixtureId, {
     winnerPlayerId,
     legsA,
     legsB,
   });
-  if (updated.status === 'FINALS_READY' && !updated.nights.some((night) => night.stage === 'FINALS')) {
-    updated = withFinalsNight(updated, uuidFactory, updated.finalsScheduledAt);
-  }
   await repo.savePremierLeagueCompetition(updated);
   return updated;
-}
-
-export async function updatePremierLeagueQuarterFinals(
-  competitionId: string,
-  nightId: string,
-  pairings: Array<[string, string]>,
-  force = false,
-): Promise<PremierLeagueCompetition> {
-  const repo = getRepository();
-  const competition = await repo.getPremierLeagueCompetition(competitionId);
-  if (!competition) throw new Error('COMPETITION_NOT_FOUND');
-  const updated = replaceQuarterFinals(competition, nightId, pairings, force);
-  await repo.savePremierLeagueCompetition(updated);
-  return updated;
-}
-
-export async function setPremierLeagueNightAdminOverride(
-  competitionId: string,
-  nightNumber: number,
-  unlocked: boolean,
-): Promise<PremierLeagueCompetition> {
-  const repo = getRepository();
-  const competition = await repo.getPremierLeagueCompetition(competitionId);
-  if (!competition) throw new Error('COMPETITION_NOT_FOUND');
-  if (nightNumber < 2 || nightNumber > 7) throw new Error('INVALID_NIGHT_NUMBER');
-  const values = new Set(competition.settings.adminUnlockedNightNumbers);
-  if (unlocked) values.add(nightNumber);
-  else values.delete(nightNumber);
-  const updated = {
-    ...competition,
-    settings: {
-      ...competition.settings,
-      adminUnlockedNightNumbers: [...values].sort((a, b) => a - b),
-    },
-  };
-  await repo.savePremierLeagueCompetition(updated);
-  return updated;
-}
-
-export interface ReopenedPremierLeagueFixture {
-  competition: PremierLeagueCompetition;
-  matchId: string;
-  nightId: string;
-}
-
-export async function reopenLastPremierLeagueResult(
-  competitionId: string,
-): Promise<ReopenedPremierLeagueFixture> {
-  const repo = getRepository();
-  const competition = await repo.getPremierLeagueCompetition(competitionId);
-  if (!competition) throw new Error('COMPETITION_NOT_FOUND');
-  const finished = competition.nights
-    .flatMap((night) => night.fixtures.map((fixture) => ({ night, fixture })))
-    .filter(({ fixture }) => fixture.status === 'FINISHED' && fixture.matchId)
-    .sort((a, b) => (a.fixture.finishedAt ?? '') < (b.fixture.finishedAt ?? '') ? 1 : -1)[0];
-  if (!finished?.fixture.matchId) throw new Error('NO_FINISHED_RESULT');
-  const reason = correctionBlockReason(competition, finished.night.id, finished.fixture.id);
-  if (reason) throw new Error(reason);
-  const match = await repo.getMatch(finished.fixture.matchId);
-  if (!match) throw new Error('MATCH_NOT_FOUND');
-
-  const events = [...match.events];
-  while (events.length && buildGameState(match.config, events).status === 'GAME_OVER') {
-    events.pop();
-  }
-  const reopenedMatch: MatchRecord = {
-    ...match,
-    events,
-    status: 'IN_PROGRESS',
-    winnerParticipant: null,
-    finishedAt: null,
-  };
-  const reopenedCompetition = reopenFixtureResult(
-    competition,
-    finished.night.id,
-    finished.fixture.id,
-  );
-  await persistMatch(reopenedMatch);
-  await repo.savePremierLeagueCompetition(reopenedCompetition);
-  return {
-    competition: reopenedCompetition,
-    matchId: match.id,
-    nightId: finished.night.id,
-  };
 }
