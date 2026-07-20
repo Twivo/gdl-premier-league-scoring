@@ -77,6 +77,33 @@ export async function launchPremierLeagueFixture(
   const fixture = night?.fixtures.find((candidate) => candidate.id === fixtureId);
   if (!night || !fixture) throw new Error('FIXTURE_NOT_FOUND');
   if (fixture.matchId) return fixture.matchId;
+
+  const findLinkedMatch = async () =>
+    (await repo.listMatches({ premierLeagueCompetitionId: competition.id })).find(
+      (candidate) => candidate.premierLeagueFixtureId === fixture.id,
+    );
+  const linkMatch = async (matchId: string) => {
+    await repo.linkPremierLeagueMatch({
+      competitionId: competition.id,
+      nightId: night.id,
+      fixtureId: fixture.id,
+      matchId,
+      finals: night.stage === 'FINALS',
+    });
+  };
+  const resumeMatch = async (matchId: string) => {
+    // The match row is sufficient to continue scoring. Linking the board is a
+    // repair step, so a temporary bracket-write failure must not hide a match
+    // whose event log is already safely stored.
+    await linkMatch(matchId).catch(() => undefined);
+    return matchId;
+  };
+
+  // A previous launch may have saved the event-sourced match before its board
+  // link was written (or an external bracket sync may have cleared that link).
+  // Resume that match instead of creating a duplicate and losing its darts.
+  const existingMatch = await findLinkedMatch();
+  if (existingMatch) return resumeMatch(existingMatch.id);
   if (!canStartFixture(competition, nightId, fixtureId, adminOverride)) {
     throw new Error('FIXTURE_NOT_AVAILABLE');
   }
@@ -97,13 +124,18 @@ export async function launchPremierLeagueFixture(
     premierLeagueNightId: night.id,
     premierLeagueFixtureId: fixture.id,
   };
-  await persistMatch(match);
-  fixture.matchId = matchId;
-  fixture.status = 'IN_PROGRESS';
-  night.status = 'IN_PROGRESS';
-  if (night.stage === 'FINALS') competition.status = 'FINALS_IN_PROGRESS';
-  await repo.savePremierLeagueCompetition(competition);
-  return matchId;
+  try {
+    await persistMatch(match);
+    await linkMatch(matchId);
+    return matchId;
+  } catch (cause) {
+    // Two scoring stations can tap the same board at nearly the same time.
+    // The database uniqueness constraint chooses one match; both stations
+    // should then resume that winner rather than surface a generic error.
+    const concurrentMatch = await findLinkedMatch().catch(() => undefined);
+    if (!concurrentMatch) throw cause;
+    return resumeMatch(concurrentMatch.id);
+  }
 }
 
 export async function completePremierLeagueFixture(

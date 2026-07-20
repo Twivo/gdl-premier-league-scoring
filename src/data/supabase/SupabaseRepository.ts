@@ -504,6 +504,40 @@ export class SupabaseRepository implements DartsRepository {
       .eq('id', record.id);
     if (finalResult.error) throw finalResult.error;
   }
+
+  async linkPremierLeagueMatch(input: {
+    competitionId: string;
+    nightId: string;
+    fixtureId: string;
+    matchId: string;
+    finals: boolean;
+  }): Promise<void> {
+    // Scoring stations only own the active board. Updating these rows directly
+    // avoids overwriting fixtures maintained by the tournament website.
+    const fixtureResult = await this.sb
+      .from('premier_league_fixtures')
+      .update({ match_id: input.matchId, status: 'IN_PROGRESS' })
+      .eq('id', input.fixtureId)
+      .eq('night_id', input.nightId)
+      .select('id')
+      .single();
+    if (fixtureResult.error) throw fixtureResult.error;
+
+    const nightResult = await this.sb
+      .from('premier_league_nights')
+      .update({ status: 'IN_PROGRESS' })
+      .eq('id', input.nightId)
+      .eq('competition_id', input.competitionId);
+    if (nightResult.error) throw nightResult.error;
+
+    if (input.finals) {
+      const competitionResult = await this.sb
+        .from('premier_league_competitions')
+        .update({ status: 'FINALS_IN_PROGRESS' })
+        .eq('id', input.competitionId);
+      if (competitionResult.error) throw competitionResult.error;
+    }
+  }
 }
 
 const PL_SELECT = `

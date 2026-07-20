@@ -72,6 +72,14 @@ export interface DartsRepository {
   listPremierLeagueCompetitions(): Promise<PremierLeagueCompetition[]>;
   getPremierLeagueCompetition(id: string): Promise<PremierLeagueCompetition | null>;
   savePremierLeagueCompetition(record: PremierLeagueCompetition): Promise<void>;
+  /** Link a match to one board without rewriting the whole competition. */
+  linkPremierLeagueMatch(input: {
+    competitionId: string;
+    nightId: string;
+    fixtureId: string;
+    matchId: string;
+    finals: boolean;
+  }): Promise<void>;
 }
 
 // --- Authentication --------------------------------------------------------

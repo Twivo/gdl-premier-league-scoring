@@ -321,4 +321,23 @@ export class LocalRepository implements DartsRepository {
     else competitions.push({ ...stamped, createdAt: record.createdAt ?? now });
     write(PREMIER_LEAGUE_KEY, competitions);
   }
+
+  async linkPremierLeagueMatch(input: {
+    competitionId: string;
+    nightId: string;
+    fixtureId: string;
+    matchId: string;
+    finals: boolean;
+  }): Promise<void> {
+    const competition = await this.getPremierLeagueCompetition(input.competitionId);
+    const night = competition?.nights.find((candidate) => candidate.id === input.nightId);
+    const fixture = night?.fixtures.find((candidate) => candidate.id === input.fixtureId);
+    if (!competition || !night || !fixture) throw new Error('FIXTURE_NOT_FOUND');
+
+    fixture.matchId = input.matchId;
+    fixture.status = 'IN_PROGRESS';
+    night.status = 'IN_PROGRESS';
+    if (input.finals) competition.status = 'FINALS_IN_PROGRESS';
+    await this.savePremierLeagueCompetition(competition);
+  }
 }

@@ -97,6 +97,30 @@ describe('local Premier League persistence', () => {
     expect((await reloaded.getMatch('pl-match'))?.premierLeagueFixtureId).toBe(fixture.id);
   });
 
+  it('links only the selected board to its saved match', async () => {
+    const repository = new LocalRepository();
+    const competition = localCompetition();
+    const night = competition.nights[0]!;
+    const fixture = night.fixtures[1]!;
+    await repository.savePremierLeagueCompetition(competition);
+
+    await repository.linkPremierLeagueMatch({
+      competitionId: competition.id,
+      nightId: night.id,
+      fixtureId: fixture.id,
+      matchId: 'saved-match',
+      finals: false,
+    });
+
+    const reloaded = await repository.getPremierLeagueCompetition(competition.id);
+    const linkedNight = reloaded?.nights.find((candidate) => candidate.id === night.id);
+    expect(linkedNight?.status).toBe('IN_PROGRESS');
+    expect(linkedNight?.fixtures[1]).toEqual(
+      expect.objectContaining({ matchId: 'saved-match', status: 'IN_PROGRESS' }),
+    );
+    expect(linkedNight?.fixtures[0]?.matchId).toBeNull();
+  });
+
   it('keeps Premier League, training and team championship match lists separate', async () => {
     const repository = new LocalRepository();
     await repository.saveMatch(match('training'));
