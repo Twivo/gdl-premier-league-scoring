@@ -27,7 +27,7 @@ Donnees recommandees:
 - [ ] Le bouton `Se connecter` / `Se deconnecter` en haut de l'accueil ouvre la
       page de connexion ou ferme la session admin.
 - [ ] Les boutons principaux sont visibles:
-  - Nouvelle partie d'entrainement;
+  - Nouveau match d'entrainement;
   - Match de championnat;
   - En direct;
   - Statistiques.
@@ -35,7 +35,7 @@ Donnees recommandees:
 - [ ] Le bouton discret des regles droles ouvre puis ferme le popup.
 - [ ] Si aucun match n'est en cours, aucune carte de reprise n'apparait.
 
-## 2. Nouvelle partie d'entrainement
+## 2. Nouveau match d'entrainement
 
 - [ ] Ouvrir `#/new`.
 - [ ] Choisir 501 puis 601.
@@ -45,7 +45,7 @@ Donnees recommandees:
 - [ ] En simple, l'app demande un joueur par cote.
 - [ ] En double, l'app demande deux joueurs par cote.
 - [ ] Choisir le starter manuellement.
-- [ ] Choisir le bull-up et verifier le popup de selection du gagnant.
+- [ ] Choisir le tirage au bull et verifier le popup de selection du gagnant.
 - [ ] Demarrer le match.
 
 ## 3. Scoring match
@@ -56,7 +56,7 @@ Donnees recommandees:
       joueur qui commence le leg, et reste sur cette carte pendant tout le leg.
 - [ ] Saisir un score valide puis valider.
 - [ ] Le grand score central diminue en direct pendant la saisie.
-- [ ] Toucher le grand score central valide aussi la visite.
+- [ ] Toucher le grand score central valide aussi la volee.
 - [ ] Sur ordinateur, les touches `0-9` tapent le score, `Entree` valide,
       `Retour arriere` efface un chiffre et `Echap` efface la saisie.
 - [ ] Le clavier physique ne reagit plus quand une fenetre de fermeture ou de
@@ -66,7 +66,7 @@ Donnees recommandees:
 - [ ] Les scores restants, le joueur actif et l'historique se mettent a jour.
 - [ ] Les scores rapides (colonnes laterales, `140` et `180`) valident
       immediatement.
-- [ ] L'historique montre les dernieres visites de chaque joueur.
+- [ ] L'historique montre les dernieres volees de chaque joueur.
 - [ ] Le bouton Bust apparait seulement quand il est pertinent.
 - [ ] Les finishes proposent les choix de flechettes possibles.
 - [ ] Un checkout termine le leg.
@@ -74,15 +74,15 @@ Donnees recommandees:
       nouveau starter.
 - [ ] Gagner le nombre de legs requis affiche l'ecran final.
 - [ ] Undo annule la derniere action.
-- [ ] Une visite peut etre modifiee si l'UI le permet.
-- [ ] La suppression de visite n'est pas disponible pendant un match.
+- [ ] Une volee peut etre modifiee si l'UI le permet.
+- [ ] La suppression de volee n'est pas disponible pendant un match.
 - [ ] Forfeit leg demande confirmation et attribue le leg a l'adversaire.
 - [ ] Forfeit match demande confirmation et termine le match.
 
 ## 4. Sauvegarde et reprise
 
 - [ ] Pendant un match, rafraichir la page.
-- [ ] L'accueil affiche une carte "partie en cours".
+- [ ] L'accueil affiche une carte "match en cours".
 - [ ] Resume reprend exactement le bon score, leg et joueur actif.
 - [ ] En mode cloud, verifier la reprise depuis un autre navigateur/appareil.
 - [ ] En cas de perte reseau temporaire, verifier qu'aucune saisie n'est perdue
@@ -94,7 +94,7 @@ Donnees recommandees:
 - [ ] Les matchs en cours sont listables.
 - [ ] Ouvrir un match live.
 - [ ] Le live n'affiche aucun controle de scoring.
-- [ ] Depuis un autre onglet, scorer une visite et verifier la mise a jour live.
+- [ ] Depuis un autre onglet, scorer une volee et verifier la mise a jour live.
 - [ ] Terminer le match et verifier que le recap final reste lisible.
 
 ## 6. Statistiques / admin
@@ -145,7 +145,7 @@ Donnees recommandees:
 
 - [ ] Composer les 4 premiers simples.
 - [ ] Demarrer le match 1.
-- [ ] Faire le bull-up.
+- [ ] Faire le tirage au bull.
 - [ ] Verifier que le gagnant du bull commence.
 - [ ] Pendant le scoring, le bandeau du score de rencontre est masque et le
       bouton `Configurer` est accessible dans la barre du haut, a cote de
@@ -163,7 +163,7 @@ Donnees recommandees:
 
 - [ ] Terminer les 10 matchs.
 - [ ] L'ecran final affiche le vainqueur, le score et les stats.
-- [ ] Finish encounter revient a l'accueil.
+- [ ] Terminer la rencontre revient a l'accueil.
 - [ ] Ouvrir `#/admin/championship`.
 - [ ] La rencontre apparait dans la liste.
 - [ ] Ouvrir la rencontre.
@@ -186,7 +186,7 @@ Donnees recommandees:
 
 - [ ] Mobile portrait: scoring utilisable sans zoom.
 - [ ] Tablette paysage et laptop: score, clavier et historique restent lisibles,
-      et l'historique montre les dernieres visites sans deborder.
+      et l'historique montre les dernieres volees sans deborder.
 - [ ] Sur tablette d'au moins 11 pouces et grand ecran, les touches du clavier
       et le score restant central sont agrandis sans provoquer de debordement.
 - [ ] Le clavier et le bouton `Valider` restent entierement visibles a l'ecran.

@@ -10,7 +10,7 @@ ordinateur.
 
 Depuis l'accueil, les actions principales sont:
 
-- `Nouvelle partie d'entrainement`: lancer un match libre.
+- `Nouveau match d'entrainement`: lancer un match libre.
 - `Match de championnat`: creer ou reprendre une rencontre officielle.
 - `En direct`: regarder les matchs en cours.
 - `Statistiques`: acceder a l'administration et aux stats.
@@ -30,22 +30,22 @@ l'installer comme une application:
 
 Une fois installee, l'application s'ouvre presque comme une app native.
 
-## 3. Nouvelle partie d'entrainement
+## 3. Nouveau match d'entrainement
 
 Depuis l'accueil:
 
-1. Cliquer sur `Nouvelle partie d'entrainement`.
+1. Cliquer sur `Nouveau match d'entrainement`.
 2. Choisir le type de jeu: `501` ou `601`.
 3. Choisir le mode: simple ou double.
 4. Choisir le nombre de legs a gagner.
 5. Ajouter les joueurs avec le bouton d'ajout et la recherche.
 6. Choisir qui commence:
    - selection manuelle;
-   - bull-up.
-7. Demarrer la partie.
+   - tirage au bull.
+7. Demarrer le match.
 
-La partie est sauvegardee automatiquement. Si la page est fermee ou rafraichie,
-elle peut etre reprise depuis l'accueil.
+Le match est sauvegarde automatiquement. Si la page est fermee ou rafraichie,
+il peut etre repris depuis l'accueil.
 
 ## 4. Saisir les scores pendant un match
 
@@ -58,10 +58,10 @@ a environ 3 metres. Il montre:
 - le score restant du joueur actif en tres grand au centre, qui diminue en direct
   pendant la saisie;
 - le clavier de saisie;
-- l'historique des dernieres visites, une colonne par joueur;
+- l'historique des dernieres volees, une colonne par joueur;
 - les actions utiles comme undo, bust ou forfait.
 
-Pour saisir une visite:
+Pour saisir une volee:
 
 1. Taper le score marque.
 2. Appuyer sur `Valider` (ou toucher le grand score central).
@@ -87,7 +87,7 @@ Quand un checkout est possible:
 
 - les choix de flechettes apparaissent;
 - maintenir `1`, `2` ou `3` permet d'indiquer le nombre de flechettes utilisees;
-- `Miss` enregistre une visite a 0 sans terminer le leg.
+- `Miss` enregistre une volee a 0 sans terminer le leg.
 
 Quand le score arrive a 0 avec une sortie valide, le leg est termine et le score
 de legs est mis a jour.
@@ -97,9 +97,9 @@ de legs est mis a jour.
 Si une erreur vient d'etre saisie:
 
 - utiliser `Undo` pour annuler la derniere action;
-- ou cliquer une visite si l'interface propose la correction de cette visite.
+- ou cliquer une volee si l'interface propose la correction de cette volee.
 
-La suppression de visite n'est pas disponible pendant un match. La correction
+La suppression de volee n'est pas disponible pendant un match. La correction
 reste le moyen recommande pour garder l'historique coherent.
 
 ## 7. Forfait
@@ -111,7 +111,7 @@ Deux types de forfait peuvent etre proposes:
 
 Une confirmation est demandee avant d'appliquer le forfait.
 
-## 8. Reprendre une partie
+## 8. Reprendre un match
 
 Si un match ou une rencontre est en cours, l'accueil affiche une carte de
 reprise.
@@ -169,7 +169,7 @@ Une rencontre contient 10 matchs:
 L'application guide les etapes:
 
 - composition des simples;
-- bull-up;
+- tirage au bull;
 - match;
 - stats du match;
 - match suivant;
@@ -247,7 +247,7 @@ Pour le championnat, chaque equipe doit avoir au moins 4 joueurs.
 - Eviter de scorer le meme match depuis deux appareils en meme temps.
 - Utiliser le live pour les spectateurs plutot que de leur donner l'ecran de
   scoring.
-- Corriger une visite rapidement si une erreur est detectee.
+- Corriger une volee rapidement si une erreur est detectee.
 - Verifier les compositions de championnat avant de lancer le premier match.
 
 ## 18. Probleme courant
@@ -269,7 +269,7 @@ Verifier:
 Verifier la connexion reseau et rafraichir la page live. En mode local, le live
 est limite a l'appareil/navigateur courant.
 
-### Une partie a disparu de l'accueil
+### Un match a disparu de l'accueil
 
 Verifier si elle est deja terminee. Les cartes de reprise affichent seulement
 les matchs ou rencontres en cours.

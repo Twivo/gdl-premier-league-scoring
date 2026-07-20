@@ -3,7 +3,7 @@ import { useCallback, useRef } from 'react';
 /**
  * Long-press detection for touch and mouse. Fires `onLongPress` after `ms`,
  * and `onClick` for a short tap (when no long-press fired and not disabled).
- * Returns props to spread on the target element.
+ * Returns props to spread on the interactive element.
  */
 export function useLongPress(
   onLongPress: () => void,

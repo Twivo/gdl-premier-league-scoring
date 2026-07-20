@@ -4,33 +4,33 @@ import type {
   PremierLeagueNight,
 } from './types';
 
-export const MIN_TARGET_NUMBER = 1;
-export const MAX_TARGET_NUMBER = 999;
+export const MIN_BOARD_NUMBER = 1;
+export const MAX_BOARD_NUMBER = 999;
 
-export interface TargetFixture {
+export interface BoardFixture {
   night: PremierLeagueNight;
   fixture: PremierLeagueFixture;
 }
 
-export function isValidTargetNumber(value: number): boolean {
+export function isValidBoardNumber(value: number): boolean {
   return (
     Number.isInteger(value) &&
-    value >= MIN_TARGET_NUMBER &&
-    value <= MAX_TARGET_NUMBER
+    value >= MIN_BOARD_NUMBER &&
+    value <= MAX_BOARD_NUMBER
   );
 }
 
-export function targetNumbers(
+export function boardNumbers(
   competition: PremierLeagueCompetition,
 ): number[] {
   return [
     ...new Set(
       competition.nights
         .flatMap((night) => night.fixtures)
-        .map((fixture) => fixture.targetNumber)
+        .map((fixture) => fixture.boardNumber)
         .filter(
           (value): value is number =>
-            value != null && isValidTargetNumber(value),
+            value != null && isValidBoardNumber(value),
         ),
     ),
   ].sort((a, b) => a - b);
@@ -44,20 +44,20 @@ const STATUS_PRIORITY: Record<PremierLeagueFixture['status'], number> = {
 };
 
 /**
- * Fixtures shown by one scoring station. The tournament manager remains the
- * source of truth for target assignment; this function only filters and
- * orders that data for the scorer.
+ * Matches shown by one scoring station. The tournament manager remains the
+ * source of truth for board assignment; this function only filters and orders
+ * that data for the scorer.
  */
-export function fixturesForTarget(
+export function fixturesForBoard(
   competition: PremierLeagueCompetition,
-  targetNumber: number,
-): TargetFixture[] {
-  if (!isValidTargetNumber(targetNumber)) return [];
+  boardNumber: number,
+): BoardFixture[] {
+  if (!isValidBoardNumber(boardNumber)) return [];
   return competition.nights
     .flatMap((night) =>
       night.fixtures.map((fixture) => ({ night, fixture })),
     )
-    .filter(({ fixture }) => fixture.targetNumber === targetNumber)
+    .filter(({ fixture }) => fixture.boardNumber === boardNumber)
     .sort((a, b) => {
       const status =
         STATUS_PRIORITY[a.fixture.status] - STATUS_PRIORITY[b.fixture.status];

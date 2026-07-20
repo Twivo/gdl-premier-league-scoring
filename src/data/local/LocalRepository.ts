@@ -25,18 +25,29 @@ const TEAM_PLAYERS_KEY = 'darts:team-players:v1';
 const ENCOUNTERS_KEY = 'darts:encounters:v1';
 export const PREMIER_LEAGUE_KEY = 'darts:premier-league:competitions:v1';
 
-function withLegacyLocalTargets(
+function withLegacyLocalBoards(
   competition: PremierLeagueCompetition,
 ): PremierLeagueCompetition {
   return {
     ...competition,
     nights: competition.nights.map((night) => ({
       ...night,
-      fixtures: night.fixtures.map((fixture) =>
-        fixture.targetNumber === undefined
-          ? { ...fixture, targetNumber: fixture.fixtureOrder }
-          : fixture,
-      ),
+      fixtures: night.fixtures.map((fixture) => {
+        const legacyFixture = fixture as typeof fixture & {
+          targetNumber?: number | null;
+        };
+        const { targetNumber: legacyBoardNumber, ...currentFixture } =
+          legacyFixture;
+        return {
+          ...currentFixture,
+          boardNumber:
+            fixture.boardNumber !== undefined
+              ? fixture.boardNumber
+              : legacyBoardNumber !== undefined
+                ? legacyBoardNumber
+                : fixture.fixtureOrder,
+        };
+      }),
     })),
   };
 }
@@ -283,7 +294,7 @@ export class LocalRepository implements DartsRepository {
 
   async listPremierLeagueCompetitions(): Promise<PremierLeagueCompetition[]> {
     return read<PremierLeagueCompetition[]>(PREMIER_LEAGUE_KEY, [])
-      .map(withLegacyLocalTargets)
+      .map(withLegacyLocalBoards)
       .sort((a, b) =>
         (a.createdAt ?? '') < (b.createdAt ?? '') ? 1 : -1,
       );
@@ -294,7 +305,7 @@ export class LocalRepository implements DartsRepository {
   ): Promise<PremierLeagueCompetition | null> {
     return (
       read<PremierLeagueCompetition[]>(PREMIER_LEAGUE_KEY, [])
-        .map(withLegacyLocalTargets)
+        .map(withLegacyLocalBoards)
         .find((competition) => competition.id === id) ?? null
     );
   }

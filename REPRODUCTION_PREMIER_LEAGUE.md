@@ -48,7 +48,7 @@ ne peut donc jamais compter deux fois).
 ## 3. Modèle de données Supabase (le socle à reproduire en premier)
 
 Fichiers : `supabase/migrations/0006_premier_league.sql` (schéma) et
-`0007_scoring_station_targets.sql` (cible). Scripts « tout-en-un » aussi fournis :
+`0008_scoring_station_targets.sql` (cible). Scripts « tout-en-un » aussi fournis :
 `full_deployment_from_scratch.sql`, `premier_league_deployment.sql`,
 `scoring_station_deployment.sql`, `seed_premier_league_players.sql`.
 
@@ -154,9 +154,9 @@ différence de legs → legs gagnés → matchs gagnés → **confrontation dire
 **`competition.ts`** — `validateCompetitionPlayers` (8 uniques), `withFinalsNight`,
 `replaceQuarterFinals` (édition des quarts tant que non démarrés).
 
-**`targets.ts`** — logique du poste de scoring :
-- `isValidTargetNumber` (1–999), `targetNumbers(competition)` (cibles distinctes triées).
-- `fixturesForTarget(competition, n)` : filtre les fixtures dont `targetNumber === n`
+**`boards.ts`** — logique du poste de scoring :
+- `isValidBoardNumber` (1–999), `boardNumbers(competition)` (cibles distinctes triées).
+- `fixturesForBoard(competition, n)` : filtre les matchs dont `boardNumber === n`
   et les **ordonne** par priorité de statut (`IN_PROGRESS < AVAILABLE < BLOCKED <
   FINISHED`), puis LEAGUE avant FINALS, puis numéro de Night, puis round, puis ordre.
 
@@ -209,8 +209,9 @@ le `MatchRecord` auto-sauvegardé.
 ## 7. Interface utilisateur — `src/features/`
 
 **`scoringStation/ScoringStationHome.tsx`** (≈589 lignes, écran principal `#/`) :
-- Choix de la cible (`TargetPicker`, saisie 1–999 + raccourcis des cibles connues) ;
-  le numéro est mémorisé dans **LocalStorage `darts:scoring-station:target:v1`**.
+- Choix de la cible (`BoardPicker`, saisie 1–999 + raccourcis des cibles connues) ;
+  le numéro est mémorisé dans **LocalStorage `darts:scoring-station:board:v2`**
+  (avec migration automatique de l’ancienne clé `target:v1`).
 - Rafraîchissement : `subscribePremierLeagueChanges` + `setInterval 5000` + refresh
   au `focus`. Calcule les scores de legs en direct via `buildGameState` du moteur.
 - Deux sections : « Matchs à jouer » / « Terminés ». Met en évidence le **prochain
@@ -257,7 +258,7 @@ fixture, Night/Finals, formats Best of, messages d'attente et d'erreur.
 
 - `index.html` : titre → « GenevaDartsConnect — poste de scoring ».
 - `vite.config.ts` : manifest PWA renommé (« scoring station », description
-  « target assignments »). Vite + `base` GitHub Pages conservés.
+  « board assignments »). Vite + `base` GitHub Pages conservés.
 - `.github/workflows/deploy.yml` : déploiement GitHub Pages conservé.
 - Docs réécrites : `README.md`, `MODE_D_EMPLOI.md`, `SUPABASE_SETUP.md`,
   `TEST_PLAN.md`, `agent.md`.
@@ -273,14 +274,14 @@ Fichiers retirés (l'app n'est plus un gestionnaire de tournoi) :
 
 ⚠️ Le **domaine `src/domain/premierLeague/` et ses tests sont conservés** (utilisés
 par le chemin de scoring : `canStartFixture`, `recordFixtureResult`,
-`officialTerminalLegScore`, `fixturesForTarget`).
+`officialTerminalLegScore`, `fixturesForBoard`).
 
 ---
 
 ## 12. Checklist de reproduction sur une autre app
 
 1. **Base de données** : rejouer `0006_premier_league.sql` puis
-   `0007_scoring_station_targets.sql` (ou `full_deployment_from_scratch.sql` sur une
+   `0008_scoring_station_targets.sql` (ou `setup_all.sql` sur une
    base neuve). Vérifier RLS (lecture publique / écriture `authenticated`) + Realtime.
 2. **Domaine** : porter tel quel `src/domain/premierLeague/` (pur TypeScript, aucune
    dépendance) + ses tests. C'est le composant le plus réutilisable.
@@ -292,7 +293,7 @@ par le chemin de scoring : `canStartFixture`, `recordFixtureResult`,
 5. **Moteur** : brancher `GameProvider`/`GameRoute` pour porter les 3 liens PL et
    appeler `completePremierLeagueFixture` en fin de partie.
 6. **UI** : `ScoringStationHome` (choix de cible + liste + starter) et `ScoringLogin`,
-   avec la clé LocalStorage `darts:scoring-station:target:v1`.
+   avec la clé LocalStorage `darts:scoring-station:board:v2`.
 7. **Routing** : réduire aux 4 routes, rediriger le reste vers `#/`.
 8. **i18n** : ajouter les clés `scoringStation.*` / `premierLeague.*`.
 9. **PWA/déploiement** : manifest + workflow Pages si nécessaire.
@@ -303,5 +304,6 @@ par le chemin de scoring : `canStartFixture`, `recordFixtureResult`,
 - Finals : top 4 · SF **1v4 / 2v3** en Best of 9 · Finale en Best of 11.
 - Points de ligue : **+5 / +3 / +2** (vainqueur / finaliste / demi-finaliste).
 - Classement **toujours recalculé**, jamais stocké.
-- Une cible = `target_number` (1–999) écrit par le site externe ; l'app **lit** et filtre.
+- Une cible = `boardNumber` dans l’app. L’adaptateur Supabase le mappe vers la
+  colonne historique `target_number` (1–999), écrite par le site externe.
 - Reprise d'un match PL protégée par mot de passe organisateur + verrou multi-appareil.

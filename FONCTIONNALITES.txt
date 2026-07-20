@@ -58,7 +58,7 @@ Deux modes de fonctionnement :
   - Score restant central, énorme, qui décrémente EN DIRECT pendant la saisie.
   - Indication permanente de qui doit tirer, du numéro de leg, du starter.
   - En 1 contre 1, l'app parle de « Joueur 1 / Joueur 2 » (pas d'« Équipe A/B »).
-  - Suivi complet de la partie visite par visite (historique déroulant).
+  - Suivi complet du match volée par volée (historique déroulant).
 
 
 ================================================================================
@@ -113,7 +113,7 @@ Les saisies fautives sont bloquées AVANT enregistrement, avec un message clair 
       • Forfait de leg (le leg est attribué à l'adversaire),
       • Forfait de match (fin immédiate, l'adversaire gagne, stats partielles).
     Chaque forfait passe par une confirmation.
-  - Historique de match éditable : chaque visite peut être corrigée ou supprimée,
+  - Historique de match éditable : chaque volée peut être corrigée ou supprimée,
     et l'appartenance des tours est recalculée automatiquement.
   - Undo (annulation) à tout moment.
 
@@ -125,7 +125,7 @@ Les saisies fautives sont bloquées AVANT enregistrement, avec un message clair 
   - Écran de victoire avec animation de confettis et annonce du vainqueur.
   - Tableau de statistiques comparatives des deux camps :
       legs gagnés, moyenne 3 fléchettes, moyenne des 9 premières fléchettes,
-      total de fléchettes, meilleur / pire leg, plus grosse visite,
+      total de fléchettes, meilleur / pire leg, meilleure volée,
       nombre de 180 / 140+ / 100+ / 60+, busts, etc.
   - BOUTON RETOUR après victoire : annule la validation de la victoire, revient
     au dernier état du match pour corriger une erreur de saisie, puis terminer
@@ -134,7 +134,7 @@ Les saisies fautives sont bloquées AVANT enregistrement, avec un message clair 
     partage native du téléphone (WhatsApp, Messages…), avec repli automatique
     en copie dans le presse-papier. Le message contient vainqueur, score de
     legs, moyennes et un lien vers l'app.
-  - Bouton « New game » pour enchaîner.
+  - Bouton « Nouveau match » pour enchaîner.
 
 
 ================================================================================
@@ -146,7 +146,7 @@ Les saisies fautives sont bloquées AVANT enregistrement, avec un message clair 
   - Sauvegarde automatique après CHAQUE action importante : chaque envoi
     contient le journal d'événements complet, donc une écriture rejouée se
     « répare » d'elle-même (un succès plus tard remplace un échec plus tôt).
-  - Résilience réseau : pendant une partie, les événements restent EN MEMOIRE
+  - Résilience réseau : pendant un match, les événements restent EN MEMOIRE
     et sont ré-essayés jusqu'à ce que la base les accepte — rien n'est perdu sur
     une coupure passagère, sans jamais écrire sur le disque local.
   - Indicateur d'enregistrement dans l'en-tête : « Saving… » / « Offline —
@@ -169,7 +169,7 @@ Les saisies fautives sont bloquées AVANT enregistrement, avec un message clair 
     (verrou périmé : scoreur parti / déconnecté). Acquisition atomique du verrou
     pour éviter que deux appareils scorent le même match.
   - REPRISE PROTEGEE PAR MOT DE PASSE : reprendre un match DEJA commencé exige la
-    connexion au compte organisateur. Une partie neuve (aucune volée) reste
+    connexion au compte organisateur. Un match neuf (aucune volée) reste
     publique, comme le scoring normal.
 
 
@@ -189,11 +189,11 @@ Les saisies fautives sont bloquées AVANT enregistrement, avec un message clair 
     ex. « Jedi's 3 – 2 Ibericos »). Pendant le scoring, cette ligne est masquée
     pour agrandir le score restant ; « ⚙ Configurer » reste accessible dans la
     barre du haut, à côté d'« Annuler ».
-  - ORDRE DES MATCHS 100 % FLEXIBLE : via « Configure encounter », on peut
+  - ORDRE DES MATCHS 100 % FLEXIBLE : via « Configurer la rencontre », on peut
     déplacer n'importe quel simple ou double à n'importe quelle position, à tout
     moment (utile si un joueur doit partir plus tôt). Les matchs déjà joués ou en
     cours restent verrouillés en place.
-  - « Configure encounter » : modifier les matchs non commencés (joueurs, ordre)
+  - « Configurer la rencontre » : modifier les matchs non commencés (joueurs, ordre)
     et les réglages ; les matchs joués/en cours sont verrouillés.
   - Écran de statistiques OBLIGATOIRE après chaque match, avec « ▶ Match suivant ».
   - Écran FINAL : vainqueur, stats par équipe et individuelles, MVP et records
@@ -210,14 +210,14 @@ Les saisies fautives sont bloquées AVANT enregistrement, avec un message clair 
 
   - Bouton « 📺 En direct » sur l'accueil, avec un badge du nombre de matchs
     actuellement en cours.
-  - Page « /live » : liste des matchs en cours (parties normales ET matchs de
+  - Page « /live » : liste des matchs en cours (matchs d'entraînement ET matchs de
     championnat), qui apparaissent / disparaissent automatiquement.
   - Grand TABLEAU SPECTATEUR en lecture seule (façon retransmission) :
       • aucun clavier ni bouton de jeu — le contrôle est structurellement
         impossible depuis cette page,
       • scores restants, legs, moyennes, joueur qui tire mis en évidence,
       • SCORE DU MATCH en évidence (ex. « Joueur A 2 – 1 Joueur B »),
-      • HISTORIQUE des visites du leg en cours (score marqué + restant),
+      • HISTORIQUE des volées du leg en cours (score marqué + restant),
       • suggestion de fermeture quand un joueur est sur une finition,
       • en double, les DEUX joueurs de chaque camp sont affichés.
   - Temps réel : mise à jour poussée SANS rafraîchir la page (Supabase Realtime),
@@ -266,9 +266,9 @@ Les saisies fautives sont bloquées AVANT enregistrement, avec un message clair 
   - Métriques par joueur et par saison : matchs joués/gagnés, ratio de victoire,
     legs gagnés, moyenne 3 fléchettes, moyennes des 3 et 9 premières fléchettes,
     % de checkout, moyenne et meilleur checkout, comptes de 180/140+/100+/60+,
-    busts, plus grosse visite, meilleur leg (moins de fléchettes).
+    busts, meilleure volée, meilleur leg (moins de fléchettes).
   - SEPARATION STRICTE CHAMPIONNAT / ENTRAINEMENT :
-      • les matchs lancés via « New Game » sont des matchs d'ENTRAINEMENT,
+      • les matchs lancés via « Nouveau match » sont des matchs d'ENTRAINEMENT,
       • ils n'influencent JAMAIS les statistiques du championnat, les stats des
         joueurs, ni les classements,
       • toutes les stats (tableau de bord, championnat, moyennes, classements)

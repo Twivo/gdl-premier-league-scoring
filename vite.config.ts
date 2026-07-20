@@ -15,10 +15,10 @@ export default defineConfig({
       injectRegister: 'auto',
       includeAssets: ['favicon.png', 'apple-touch-icon.png', 'app-icon.png'],
       manifest: {
-        name: 'GenevaDartsConnect — scoring station',
+        name: 'MorgesDartsConnect — board scoring',
         short_name: 'Darts Scoring',
         description:
-          'Touch-first scoring station with automatic target assignments.',
+          'Touch-first darts scoring station with automatic board assignments.',
         theme_color: '#0b0f14',
         background_color: '#0b0f14',
         display: 'standalone',
