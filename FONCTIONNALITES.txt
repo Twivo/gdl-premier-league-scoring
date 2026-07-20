@@ -62,11 +62,16 @@ Deux modes de fonctionnement :
 
 
 ================================================================================
- 3. SAISIE DES SCORES (CLAVIER TACTILE)
+ 3. SAISIE DES SCORES (CLAVIER TACTILE + CLAVIER PHYSIQUE)
 ================================================================================
 
   - Clavier numérique inversé (1 en haut, 9 en bas) pour la prise en main.
-  - Saisie du SCORE marqué à la volée : le restant se met à jour en temps réel.
+  - Sur ordinateur, saisie possible au CLAVIER PHYSIQUE : chiffres 0-9 pour
+    taper, Entrée pour valider, Retour arrière pour effacer un chiffre, Échap
+    pour tout effacer (désactivé quand une fenêtre de fermeture/édition est
+    ouverte).
+  - Saisie du SCORE marqué à la volée : le restant se met à jour en temps réel
+    (en couleur normale ; le rouge est réservé aux saisies invalides).
   - Boutons de scores rapides fréquents (60, 81, 99, 100, 140, 180…).
   - « Finish rapide » : on tape le restant puis on touche le score central pour
     valider la fermeture (sans encadré rouge, saisie fluide).
@@ -180,7 +185,10 @@ Les saisies fautives sont bloquées AVANT enregistrement, avec un message clair 
   - Flux automatique : composer → jouer → stats du match → match suivant →
     doubles → derniers simples → écran final.
   - Bull à chaque match + ordre des joueurs en double (voir §5).
-  - Score de la rencontre affiché en permanence (ex. « Jedi's 3 – 2 Ibericos »).
+  - Score de la rencontre affiché entre les matchs (composition, stats, final,
+    ex. « Jedi's 3 – 2 Ibericos »). Pendant le scoring, cette ligne est masquée
+    pour agrandir le score restant ; « ⚙ Configurer » reste accessible dans la
+    barre du haut, à côté d'« Annuler ».
   - ORDRE DES MATCHS 100 % FLEXIBLE : via « Configure encounter », on peut
     déplacer n'importe quel simple ou double à n'importe quelle position, à tout
     moment (utile si un joueur doit partir plus tôt). Les matchs déjà joués ou en

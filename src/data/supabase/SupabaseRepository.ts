@@ -8,6 +8,8 @@ import type {
   PlayerQuery,
   PlayerRecord,
   Season,
+  TeamAccount,
+  TeamAccountAssignment,
   TeamRecord,
   TeamWithPlayers,
   PremierLeagueCompetition,
@@ -354,6 +356,53 @@ export class SupabaseRepository implements DartsRepository {
       .order('updated_at', { ascending: false });
     if (error) throw error;
     return (data as DbEncounter[]).map(toEncounter);
+  }
+
+  // --- team accounts -------------------------------------------------------
+
+  async getMyTeamAccount(): Promise<TeamAccount | null> {
+    const { data: auth } = await this.sb.auth.getUser();
+    if (!auth.user) return null;
+    const { data, error } = await this.sb
+      .from('team_accounts')
+      .select('team_id, role')
+      .eq('user_id', auth.user.id)
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) return null;
+    const r = data as { team_id: string | null; role: TeamAccount['role'] };
+    return { userId: auth.user.id, teamId: r.team_id, role: r.role };
+  }
+
+  async listTeamAccounts(): Promise<TeamAccountAssignment[]> {
+    const { data, error } = await this.sb.rpc('admin_list_team_accounts');
+    if (error) throw error;
+    return (data as Array<{
+      user_id: string;
+      email: string;
+      team_id: string | null;
+      role: TeamAccountAssignment['role'];
+    }>).map((r) => ({
+      userId: r.user_id,
+      email: r.email,
+      teamId: r.team_id,
+      role: r.role,
+    }));
+  }
+
+  async assignCaptain(email: string, teamId: string): Promise<void> {
+    const { error } = await this.sb.rpc('admin_assign_captain', {
+      p_email: email,
+      p_team_id: teamId,
+    });
+    if (error) throw error;
+  }
+
+  async unassignCaptain(teamId: string): Promise<void> {
+    const { error } = await this.sb.rpc('admin_unassign_captain', {
+      p_team_id: teamId,
+    });
+    if (error) throw error;
   }
 
   // --- Premier League -------------------------------------------------------

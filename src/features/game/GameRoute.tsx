@@ -6,6 +6,7 @@ import { acquireLock, releaseLock, LOCK_HEARTBEAT_MS } from '@/store/matchLock';
 import { useAuth } from '@/store/AuthContext';
 import { useT } from '@/store/LangContext';
 import { Button } from '@/components/ui/Button';
+import { Loading } from '@/components/ui/Loading';
 import { AdminLogin } from '@/features/admin/AdminLogin';
 import type { MatchRecord } from '@/data/types';
 import { completePremierLeagueFixture } from '@/store/premierLeagueService';
@@ -39,7 +40,8 @@ export function GameRoute() {
 
   // Resuming an already-started match is protected: taking control after a
   // break requires the organizer password (admin sign-in). A brand-new game
-  // (no visits yet) is public, like normal scoring.
+  // (no visits yet) is public, like normal scoring. Every Premier League match
+  // is protected regardless, since results write back to the bracket.
   const isResume =
     !!match && match.events.length > 0 && match.status === 'IN_PROGRESS';
   const isPremierLeague = !!match?.premierLeagueFixtureId;
@@ -74,11 +76,7 @@ export function GameRoute() {
   }, [id, match, needsPassword]);
 
   if (loading || authLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center text-[var(--color-text-dim)]">
-        {t('game.loadingMatch')}
-      </div>
-    );
+    return <Loading label={t('game.loadingMatch')} />;
   }
   if (!id || !match) return <Navigate to="/" replace />;
 

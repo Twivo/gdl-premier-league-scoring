@@ -32,11 +32,11 @@ export function VisitHistory({ onEdit }: { onEdit: (eventId: string) => void }) 
     return (
       <button
         onClick={() => onEdit(v.event.id)}
-        className="flex items-center justify-between rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-[var(--color-surface-2)]"
+        className="flex items-center justify-between rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-[var(--color-surface-2)]"
       >
         <span
           className={cn(
-            'text-2xl font-black tnum',
+            'text-5xl font-black tnum',
             v.isBust && 'text-[var(--color-accent)]',
             v.isCheckout && 'text-[var(--color-success)]',
           )}
@@ -45,10 +45,10 @@ export function VisitHistory({ onEdit }: { onEdit: (eventId: string) => void }) 
           {v.isCheckout && ' ✓'}
         </span>
         <span className="flex flex-col items-end leading-tight">
-          <span className="text-sm font-semibold tnum text-[var(--color-text-dim)]">
+          <span className="text-2xl font-semibold tnum text-[var(--color-text-dim)]">
             {v.remainingAfter}
           </span>
-          <span className="text-[10px] text-[var(--color-text-mute)]">
+          <span className="text-sm text-[var(--color-text-mute)]">
             {v.event.darts}d
           </span>
         </span>
@@ -58,12 +58,12 @@ export function VisitHistory({ onEdit }: { onEdit: (eventId: string) => void }) 
 
   return (
     <div className="flex flex-col">
-      <div className="sticky top-0 z-10 grid grid-cols-2 gap-2 border-b border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2">
+      <div className="sticky top-0 z-10 grid grid-cols-2 gap-2 border-b border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2.5">
         {columns.map((c) => (
           <div
             key={c.participant.id}
             className={cn(
-              'flex items-center justify-between truncate text-xs font-bold uppercase tracking-wide',
+              'flex items-center justify-between truncate text-lg font-bold uppercase tracking-wide',
               c.participant.id === state.activeParticipantId
                 ? 'text-[var(--color-accent)]'
                 : 'text-[var(--color-text-dim)]',
@@ -80,7 +80,7 @@ export function VisitHistory({ onEdit }: { onEdit: (eventId: string) => void }) 
       </div>
 
       {rounds === 0 ? (
-        <p className="px-3 py-4 text-sm text-[var(--color-text-dim)]">
+        <p className="px-3 py-4 text-xl text-[var(--color-text-dim)]">
           {t('visitHistory.empty')}
         </p>
       ) : (

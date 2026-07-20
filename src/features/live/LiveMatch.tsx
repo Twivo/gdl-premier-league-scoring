@@ -86,17 +86,21 @@ export function LiveMatch() {
   const context: EncounterContext | null = useMemo(() => {
     if (!encounter || !match) return null;
     const total = encounter.plan.fixtures.length;
-    const n = (match.fixtureIndex ?? 0) + 1;
+    const fixtureIndex = match.fixtureIndex ?? 0;
+    const isDeciderMatch = fixtureIndex >= total; // decider sits just past the fixtures
+    const kind = t(
+      match.mode === 'DOUBLE' ? 'game.doubles' : 'game.singles',
+    ).toLowerCase();
     return {
       aName: encounter.plan.teams.A.name,
       bName: encounter.plan.teams.B.name,
       scoreA: encounter.scoreA,
       scoreB: encounter.scoreB,
-      label: `${t('live.matchLabel')
-        .replace('{n}', String(n))
-        .replace('{total}', String(total))} · ${t(
-        match.mode === 'DOUBLE' ? 'game.doubles' : 'game.singles',
-      ).toLowerCase()}`,
+      label: isDeciderMatch
+        ? `${t('champ.decider')} · ${kind}`
+        : `${t('live.matchLabel')
+            .replace('{n}', String(fixtureIndex + 1))
+            .replace('{total}', String(total))} · ${kind}`,
     };
   }, [encounter, match, t]);
 

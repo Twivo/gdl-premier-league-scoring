@@ -40,6 +40,13 @@ export interface EncounterPlan {
   settings: EncounterSettings;
   teams: { A: TeamSnapshot; B: TeamSnapshot };
   fixtures: Fixture[];
+  /**
+   * Decisive doubles: an extra DOUBLE played only when the regular fixtures
+   * end level (e.g. 5-5). Its pair on each side must be one not already used
+   * in the earlier doubles. Absent on existing encounters (jsonb — no
+   * migration): `undefined` means "not composed yet".
+   */
+  decider?: Fixture | null;
 }
 
 export type EncounterPhase = 'COMPOSE' | 'PLAY' | 'MATCH_DONE' | 'FINAL';
@@ -62,6 +69,8 @@ export interface EncounterState {
   currentFixture: Fixture | null;
   /** The block that needs composing (phase === 'COMPOSE'). */
   composeBlock: ComposeBlock | null;
-  /** Set only when phase === 'FINAL'. */
-  finalWinner: Side | 'DRAW' | null;
+  /** Set only when phase === 'FINAL'. Always a side — a match can never end level. */
+  finalWinner: Side | null;
+  /** True while composing/playing the decisive doubles (level score). */
+  isDecider: boolean;
 }

@@ -18,13 +18,15 @@ export function LiveEncounterRecap({
   currentMatchId?: string;
 }) {
   const { t } = useT();
-  const { teams, fixtures } = encounter.plan;
+  const { teams, fixtures, decider } = encounter.plan;
   const nameOf = (id: string) =>
     [...teams.A.players, ...teams.B.players].find((p) => p.id === id)?.name ?? '—';
   const side = (ids: string[]) => (ids.length ? ids.map(nameOf).join(' & ') : '—');
   const byFixture = new Map(
     matches.map((m) => [m.fixtureIndex ?? -1, m] as const),
   );
+  // Include the decisive doubles (played only at a level score) as a final row.
+  const rows = decider ? [...fixtures, decider] : fixtures;
 
   return (
     <div className="mt-4">
@@ -42,7 +44,8 @@ export function LiveEncounterRecap({
       <div className="overflow-hidden rounded-xl border border-[var(--color-border)]">
         <table className="w-full text-sm">
           <tbody>
-            {fixtures.map((f) => {
+            {rows.map((f) => {
+              const isDeciderRow = f.index >= fixtures.length;
               const m = byFixture.get(f.index);
               const st = m ? buildGameState(m.config, m.events) : null;
               const legsA = st ? st.legsWon['A'] ?? 0 : 0;
@@ -64,8 +67,9 @@ export function LiveEncounterRecap({
                   )}
                 >
                   <td className="w-9 py-2 pl-2 pr-1 align-middle text-[10px] font-bold uppercase text-[var(--color-accent)]">
-                    {f.kind === 'DOUBLE' ? 'D' : 'S'}
-                    {f.index + 1}
+                    {isDeciderRow
+                      ? '★'
+                      : `${f.kind === 'DOUBLE' ? 'D' : 'S'}${f.index + 1}`}
                   </td>
                   <td className="py-2 pr-1 align-middle">
                     <div className="flex items-center gap-1.5">

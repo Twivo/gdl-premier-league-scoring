@@ -1,14 +1,16 @@
--- MANUAL DEPLOYMENT SCRIPT
--- Paste this complete file into the Supabase SQL Editor and run it once.
--- It is the standalone equivalent of migrations/0006_premier_league.sql.
-
 -- ============================================================================
 -- Individual Premier League: 7 league Nights plus Finals Night.
 --
 -- The X01 event log remains in public.matches. These tables only orchestrate
 -- competition membership and brackets. Standings and points are deliberately
 -- derived from completed fixtures, so a retry can never award points twice.
--- Idempotent and safe to run after migrations 0001 through 0005.
+-- Idempotent and safe to run after migrations 0001 through 0006.
+--
+-- NOTE (Morges adaptation): migration 0006_team_accounts installed the
+-- captain/admin RLS model. This migration re-creates the matches / match_players
+-- write policies so they KEEP that team scoping and simply add the Premier
+-- League branch (a PL match is authenticated-only, like a championship match,
+-- never publicly writable like a training game).
 -- ============================================================================
 
 -- Competitions ---------------------------------------------------------------
@@ -244,7 +246,7 @@ alter table public.matches add column is_training boolean
 comment on column public.matches.is_training is
   'True only for standalone training matches; false for team championship and Premier League.';
 
--- RLS: brackets/results are public; writes are organizer-only. ----------------
+-- RLS: brackets/results are public; writes are for any authenticated account. --
 alter table public.premier_league_competitions enable row level security;
 alter table public.premier_league_players enable row level security;
 alter table public.premier_league_nights enable row level security;
@@ -270,32 +272,74 @@ begin
   end loop;
 end $$;
 
--- Training stays publicly scoreable. Team championship and Premier League
--- matches require an authenticated organizer for insert/update.
+-- matches / match_players: re-create the write policies from 0006_team_accounts
+-- and ADD the Premier League branch. Ordering of branches:
+--   1. training  (encounter_id null AND pl_fixture_id null)  -> public
+--   2. Premier League (pl_fixture_id not null)               -> any authenticated scorer
+--   3. admin                                                  -> anything
+--   4. captain of one of the encounter's teams               -> that championship match
 drop policy if exists "matches_insert" on public.matches;
 drop policy if exists "matches_update" on public.matches;
+
 create policy "matches_insert" on public.matches
-  for insert with check (
-    (encounter_id is null and premier_league_fixture_id is null) or
-    (select auth.role()) = 'authenticated'
+  for insert
+  with check (
+    (encounter_id is null and premier_league_fixture_id is null)
+    or (premier_league_fixture_id is not null and (select auth.role()) = 'authenticated')
+    or (select public.current_is_admin())
+    or exists (
+      select 1 from public.encounters e
+      where e.id = encounter_id
+        and (select public.current_team_id()) in (e.team_a_id, e.team_b_id)
+    )
   );
+
 create policy "matches_update" on public.matches
-  for update using (
-    (encounter_id is null and premier_league_fixture_id is null) or
-    (select auth.role()) = 'authenticated'
-  ) with check (
-    (encounter_id is null and premier_league_fixture_id is null) or
-    (select auth.role()) = 'authenticated'
+  for update
+  using (
+    (encounter_id is null and premier_league_fixture_id is null)
+    or (premier_league_fixture_id is not null and (select auth.role()) = 'authenticated')
+    or (select public.current_is_admin())
+    or exists (
+      select 1 from public.encounters e
+      where e.id = matches.encounter_id
+        and (select public.current_team_id()) in (e.team_a_id, e.team_b_id)
+    )
+  )
+  with check (
+    (encounter_id is null and premier_league_fixture_id is null)
+    or (premier_league_fixture_id is not null and (select auth.role()) = 'authenticated')
+    or (select public.current_is_admin())
+    or exists (
+      select 1 from public.encounters e
+      where e.id = matches.encounter_id
+        and (select public.current_team_id()) in (e.team_a_id, e.team_b_id)
+    )
   );
 
 drop policy if exists "match_players_insert" on public.match_players;
 create policy "match_players_insert" on public.match_players
-  for insert with check (
-    (select auth.role()) = 'authenticated' or exists (
+  for insert
+  with check (
+    exists (
       select 1 from public.matches m
       where m.id = match_id
         and m.encounter_id is null
         and m.premier_league_fixture_id is null
+    )
+    or (
+      (select auth.role()) = 'authenticated' and exists (
+        select 1 from public.matches m
+        where m.id = match_id and m.premier_league_fixture_id is not null
+      )
+    )
+    or (select public.current_is_admin())
+    or exists (
+      select 1
+      from public.matches m
+      join public.encounters e on e.id = m.encounter_id
+      where m.id = match_id
+        and (select public.current_team_id()) in (e.team_a_id, e.team_b_id)
     )
   );
 
@@ -315,4 +359,3 @@ begin
   alter publication supabase_realtime add table public.premier_league_fixtures;
 exception when duplicate_object then null;
 end $$;
-

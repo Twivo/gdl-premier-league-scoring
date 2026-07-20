@@ -23,6 +23,7 @@ export function GameScreen({
   onGameOver,
   gameOverContent,
   embedded,
+  onConfigure,
 }: {
   /** Championship: called once the match is finished (winner participant id). */
   onGameOver?: (winnerParticipantId: string | undefined) => void;
@@ -30,6 +31,8 @@ export function GameScreen({
   gameOverContent?: React.ReactNode;
   /** Fill the parent instead of the whole viewport (embedded in a wrapper). */
   embedded?: boolean;
+  /** Championship: opens the encounter configuration (button next to Undo). */
+  onConfigure?: () => void;
 } = {}) {
   const navigate = useNavigate();
   const confirm = useConfirm();
@@ -42,6 +45,16 @@ export function GameScreen({
   const [editingId, setEditingId] = useState<string | null>(null);
   const firedGameOver = useRef(false);
 
+  // Physical-keyboard support (desktop): the latest input API is stashed in a
+  // ref so a single window listener stays valid across renders. Set to null
+  // once the game is over or a modal owns the keyboard, disabling capture.
+  const keyApi = useRef<{
+    onDigit: (d: string) => void;
+    onBackspace: () => void;
+    onCommit: () => void;
+    onClear: () => void;
+  } | null>(null);
+
   useEffect(() => {
     if (state.status === 'GAME_OVER' && onGameOver && !firedGameOver.current) {
       firedGameOver.current = true;
@@ -49,7 +62,39 @@ export function GameScreen({
     }
   }, [state.status, state.winnerId, onGameOver]);
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const api = keyApi.current;
+      if (!api || e.metaKey || e.ctrlKey || e.altKey) return;
+      const el = e.target as HTMLElement | null;
+      if (
+        el &&
+        (el.tagName === 'INPUT' ||
+          el.tagName === 'TEXTAREA' ||
+          el.isContentEditable)
+      ) {
+        return;
+      }
+      if (e.key >= '0' && e.key <= '9') {
+        e.preventDefault();
+        api.onDigit(e.key);
+      } else if (e.key === 'Backspace') {
+        e.preventDefault();
+        api.onBackspace();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        api.onCommit();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        api.onClear();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   if (state.status === 'GAME_OVER') {
+    keyApi.current = null;
     if (onGameOver || gameOverContent) return <>{gameOverContent}</>;
     return <StatsScreen />;
   }
@@ -144,6 +189,18 @@ export function GameScreen({
     else commitGross(parsed);
   };
 
+  // Wire the physical keyboard to the live input, but hand control to a modal
+  // (checkout / edit visit) when one is open so it can own the keyboard.
+  keyApi.current =
+    pendingCheckout !== null || editingId !== null
+      ? null
+      : {
+          onDigit,
+          onBackspace,
+          onCommit: commitSmart,
+          onClear: () => setBuffer(''),
+        };
+
   const confirmCheckout = (darts: number) => {
     if (pendingCheckout === null) return;
     addVisit(pendingCheckout, darts);
@@ -205,29 +262,37 @@ export function GameScreen({
       )}
     >
       {/* top control bar (compact single line) */}
-      <div className="flex shrink-0 items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-1.5 py-0.5 text-xs">
+      <div className="flex shrink-0 items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-2 py-1 text-lg">
         <button
           onClick={() => navigate('/')}
-          className="rounded-md px-2 py-1 text-[var(--color-text-dim)] hover:bg-[var(--color-surface-2)]"
+          className="rounded-md px-3 py-1.5 font-semibold text-[var(--color-text-dim)] hover:bg-[var(--color-surface-2)]"
         >
           {t('common.home')}
         </button>
-        <div className="flex items-center gap-0.5">
+        <div className="flex items-center gap-1">
+          {onConfigure && (
+            <button
+              onClick={onConfigure}
+              className="rounded-md px-3 py-1.5 font-semibold text-[var(--color-text-dim)] hover:bg-[var(--color-surface-2)]"
+            >
+              {t('champ.configure')}
+            </button>
+          )}
           <button
             onClick={undo}
-            className="rounded-md px-2 py-1 font-semibold hover:bg-[var(--color-surface-2)]"
+            className="rounded-md px-3 py-1.5 font-semibold hover:bg-[var(--color-surface-2)]"
           >
             {t('game.undo')}
           </button>
           <button
             onClick={forfeitCurrentLeg}
-            className="rounded-md px-2 py-1 text-[var(--color-warning)] hover:bg-[var(--color-surface-2)]"
+            className="rounded-md px-3 py-1.5 font-semibold text-[var(--color-warning)] hover:bg-[var(--color-surface-2)]"
           >
             {t('game.forfeitLeg')}
           </button>
           <button
             onClick={forfeitCurrentGame}
-            className="rounded-md px-2 py-1 text-[var(--color-accent)] hover:bg-[var(--color-surface-2)]"
+            className="rounded-md px-3 py-1.5 font-semibold text-[var(--color-accent)] hover:bg-[var(--color-surface-2)]"
           >
             {t('game.forfeitMatch')}
           </button>
@@ -251,7 +316,7 @@ export function GameScreen({
         </div>
 
         {/* keypad — finish long-press is integrated into the 1/2/3 keys */}
-        <div className="shrink-0 border-t border-[var(--color-border)] lg:flex lg:w-[440px] lg:flex-col lg:justify-center lg:border-l lg:border-t-0">
+        <div className="shrink-0 border-t border-[var(--color-border)] lg:flex lg:w-[520px] lg:flex-col lg:justify-center lg:border-l lg:border-t-0">
           <Keypad
             buffer={buffer}
             remainingBefore={remainingBefore}

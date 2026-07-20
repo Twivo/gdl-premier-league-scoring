@@ -2,7 +2,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/cn';
 import { useAuth } from '@/store/AuthContext';
 import { useT } from '@/store/LangContext';
-import { RequireAuth } from './RequireAuth';
+import { RequireAdmin } from './RequireAuth';
 
 /**
  * Admin shell. New admin tools = just add a route + a nav entry below;
@@ -22,7 +22,7 @@ export function AdminLayout() {
   const { t } = useT();
 
   return (
-    <RequireAuth>
+    <RequireAdmin>
       <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-4 py-5">
         <header className="mb-5 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -68,6 +68,6 @@ export function AdminLayout() {
 
         <Outlet />
       </div>
-    </RequireAuth>
+    </RequireAdmin>
   );
 }

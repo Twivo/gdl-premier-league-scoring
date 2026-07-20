@@ -25,3 +25,4 @@ scripts/dev.cmd
 
 # league seed with real player names — kept local, not published
 supabase/seed_gdl_2025-2026.sql
+_source_assets/
