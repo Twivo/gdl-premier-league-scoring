@@ -1,4 +1,4 @@
-// Seed MorgesDartsConnect: teams + players + 10 coherent ~50-avg 501 matches.
+// Seed GDL Premier League Scoring: teams + players + 10 coherent ~50-avg 501 matches.
 // Uses service_role (server-side admin) — never shipped to the client.
 import { randomUUID } from 'node:crypto';
 
@@ -26,7 +26,7 @@ async function post(table, rows) {
 // Roster & teams (license numbers ignored on purpose)
 // ---------------------------------------------------------------------------
 const TEAMS = {
-  'DC MORGES': ['Michel Roy','Laurent Flaction','Ludovic Marguet','Yannick Cainzos','Neil Poulton','Arno Roy','Patrick Roy','Amandine Marchand'],
+  'GDL': ['Michel Roy','Laurent Flaction','Ludovic Marguet','Yannick Cainzos','Neil Poulton','Arno Roy','Patrick Roy','Amandine Marchand'],
   'SNIPERS DARTS': ['Elan Ganesalingam','James Oliver','Julien Tanguy','Joao Ferreira','Younes Abbadi','Simon Picthall','Chris Roberts'],
   'GALWAY DARTS': ['Christophe Chamard','Dermot Simpson','Nathalie Finger','George Rooney','Mickaël Schneider','Thomas Donkin','Hélène Pfäuti','Didier André'],
   'LAUSANNE SOCIAL DARTS': ['Benjamin Schaub','Antoine Padioleau','Gabriel Bernasconi','Stefan Rihs','Marc Zendrini','Anthony Colney','Lionel Zünd'],

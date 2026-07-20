@@ -1,6 +1,6 @@
-# MorgesDartsConnect
+# GDL Premier League Scoring
 
-MorgesDartsConnect est une application de scoring de darts pensée d'abord pour
+GDL Premier League Scoring est une application de scoring de darts pensée d'abord pour
 les matchs a domicile des Jedis, puis etendue vers une petite plateforme de
 club: matchs d'entrainement, rencontres de championnat, statistiques joueurs,
 equipes, live public et mode PWA.

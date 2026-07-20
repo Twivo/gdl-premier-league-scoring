@@ -1,11 +1,11 @@
 # Guide agent IA
 
 Ce fichier sert de repere rapide pour les LLM et contributeurs qui travaillent
-sur MorgesDartsConnect.
+sur GDL Premier League Scoring.
 
 ## Objectif produit
 
-MorgesDartsConnect est une application de scoring et de statistiques darts,
+GDL Premier League Scoring est une application de scoring et de statistiques darts,
 orientee en priorite vers les matchs a domicile des Jedis.
 
 L'application doit rester:

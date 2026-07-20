@@ -1,4 +1,4 @@
-# Plan de test manuel - MorgesDartsConnect
+# Plan de test manuel - GDL Premier League Scoring
 
 Ce plan sert a verifier rapidement les parcours critiques apres une modification.
 Tester de preference en local et sur le site deploye.
@@ -21,7 +21,7 @@ Donnees recommandees:
 
 ## 1. Accueil
 
-- [ ] Le logo MorgesDartsConnect s'affiche.
+- [ ] Le logo GDL Premier League s'affiche.
 - [ ] Le favicon est visible dans l'onglet navigateur.
 - [ ] Le switch FR/EN change les textes visibles.
 - [ ] Le bouton `Se connecter` / `Se deconnecter` en haut de l'accueil ouvre la

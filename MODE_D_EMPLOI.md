@@ -1,4 +1,4 @@
-# Mode d'emploi - MorgesDartsConnect
+# Mode d'emploi - GDL Premier League Scoring
 
 Ce guide explique comment utiliser l'application pendant une soiree de darts,
 un entrainement ou un match de championnat a domicile des Jedis.
@@ -21,7 +21,7 @@ ferme la session en cours, sans passer par le championnat.
 
 ## 2. Installer l'application sur un appareil
 
-MorgesDartsConnect est une PWA. Selon le navigateur, il est possible de
+GDL Premier League Scoring est une PWA. Selon le navigateur, il est possible de
 l'installer comme une application:
 
 - sur Android/Chrome: menu du navigateur puis `Installer l'application`;

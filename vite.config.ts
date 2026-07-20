@@ -15,8 +15,8 @@ export default defineConfig({
       injectRegister: 'auto',
       includeAssets: ['favicon.png', 'apple-touch-icon.png', 'app-icon.png'],
       manifest: {
-        name: 'MorgesDartsConnect — board scoring',
-        short_name: 'Darts Scoring',
+        name: 'GDL Premier League Scoring',
+        short_name: 'GDL Scoring',
         description:
           'Touch-first darts scoring station with automatic board assignments.',
         theme_color: '#0b0f14',

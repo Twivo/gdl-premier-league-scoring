@@ -1,6 +1,6 @@
 # Configuration Supabase
 
-Ce guide active le mode cloud de MorgesDartsConnect. Sans cette configuration,
+Ce guide active le mode cloud de GDL Premier League Scoring. Sans cette configuration,
 l'application reste utilisable en mode local via le stockage du navigateur.
 
 ## 1. Creer le projet

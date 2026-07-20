@@ -6,7 +6,7 @@
 -- derived from completed fixtures, so a retry can never award points twice.
 -- Idempotent and safe to run after migrations 0001 through 0006.
 --
--- NOTE (Morges adaptation): migration 0006_team_accounts installed the
+-- NOTE (GDL adaptation): migration 0006_team_accounts installed the
 -- captain/admin RLS model. This migration re-creates the matches / match_players
 -- write policies so they KEEP that team scoping and simply add the Premier
 -- League branch (a PL match is authenticated-only, like a championship match,
