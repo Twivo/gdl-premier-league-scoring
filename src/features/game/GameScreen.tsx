@@ -303,14 +303,14 @@ export function GameScreen({
 
       <div className="game-layout flex min-h-0 flex-1 flex-col">
         {/* scores + finish + history (right under the remaining score) */}
-        <div className="flex min-h-0 flex-1 flex-col">
+        <div className="game-score-pane flex min-h-0 flex-1 flex-col">
           <ScoreBoard
             liveRemaining={liveRemaining}
             hasInput={parsed !== null}
             error={error}
             onCommit={commitRemaining}
           />
-          <div className="min-h-0 flex-1 overflow-y-auto border-t border-[var(--color-border)]">
+          <div className="game-history-pane min-h-0 flex-1 overflow-y-auto border-t border-[var(--color-border)]">
             <VisitHistory onEdit={(id) => setEditingId(id)} />
           </div>
         </div>

@@ -118,14 +118,15 @@ tournoi. Les écrans historiques correspondants sont décrits à la section 11.
 - En paysage tablette, les cartes, l’historique et le pavé sont compactés pour
   conserver l’ensemble dans une seule fenêtre.
 - Les scores principaux sont dimensionnés pour rester lisibles à environ trois
-  mètres : jusqu’à 96 px dans les cartes joueurs et 180 px pour le reste central
-  en portrait ; en paysage compact, ils sont doublés par rapport à l’ancienne
-  version, à 88 px et 152 px.
-- L’historique utilise volontairement des chiffres plus petits, de 22 à 28 px,
-  afin de laisser la priorité visuelle aux scores actifs.
+  mètres : 112 px dans les cartes joueurs et 210 px pour le reste central en
+  portrait ; 120 px et 230 px dans la vue compacte.
+- L’historique est limité à 70–85 px de hauteur et utilise des chiffres de
+  22–26 px afin de laisser la priorité visuelle aux scores actifs.
+- Dans la vue compacte, les touches passent de 40 à 48 px et la hauteur totale
+  du clavier augmente d’environ 20 %.
 - Mise en page centrale resserrée afin de laisser apparaître au minimum les
-  deux dernières volées complètes de chaque joueur à 1024 × 768 ; trois volées
-  complètes apparaissent à 768 × 1024.
+  deux dernières volées complètes de chaque joueur à 1024 × 768 comme à
+  768 × 1024.
 
 ### 3.2 Saisie d’une volée
 
