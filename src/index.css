@@ -127,6 +127,10 @@ button {
     flex: 0 0 auto;
   }
 
+  .game-keypad-pane {
+    margin-top: auto;
+  }
+
   .game-scoreboard {
     padding-top: 0;
   }
