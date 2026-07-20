@@ -119,7 +119,7 @@ tournoi. Les écrans historiques correspondants sont décrits à la section 11.
   conserver l’ensemble dans une seule fenêtre.
 - Sur tablette, le pavé reste ancré au bas de la fenêtre et grandit vers le
   haut selon la hauteur disponible : environ 397 px en paysage compact, 419 px
-  en portrait intermédiaire et 469 px sur une tablette haute.
+  en portrait intermédiaire et jusqu’à 525 px sur une tablette haute.
 - L’historique est placé immédiatement au-dessus du pavé. Sur une tablette
   haute, il descend ainsi dans l’espace auparavant inutilisé.
 - Les noms des joueurs mesurent 32 px en portrait et 24 px dans la vue
@@ -128,11 +128,13 @@ tournoi. Les écrans historiques correspondants sont décrits à la section 11.
 - Les scores principaux sont dimensionnés pour rester lisibles à environ trois
   mètres : 134 px dans les cartes joueurs et 210 px pour le reste central en
   portrait ; 144 px et 230 px dans la vue compacte.
-- L’historique mesure 112–136 px de hauteur et utilise toujours des chiffres
-  d’environ 26–31 px. Il laisse apparaître les trois dernières volées complètes
-  de chaque joueur tout en conservant les proportions typographiques validées.
+- L’historique mesure 112–170 px de hauteur et utilise toujours des chiffres
+  d’environ 26–31 px. Il laisse apparaître au minimum les trois dernières volées
+  complètes de chaque joueur, et quatre sur une tablette haute, tout en
+  conservant les proportions typographiques validées.
 - Les touches mesurent 54 px dans la vue compacte, 56 px sur une tablette de
-  hauteur intermédiaire et 62 px sur une tablette haute.
+  hauteur intermédiaire et jusqu’à 70 px sur une tablette haute. La zone
+  combinée de l’historique et du pavé s’étend progressivement vers le haut.
 - Mise en page centrale resserrée afin de laisser apparaître au minimum les
   trois dernières volées complètes de chaque joueur à 1024 × 768 comme à
   768 × 1024.

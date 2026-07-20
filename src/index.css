@@ -191,48 +191,57 @@ button {
 
 /* Use the extra height of portrait/tall tablets to grow the keypad upward. */
 @media (min-width: 640px) and (max-width: 1535px) and (min-height: 1100px) {
+  .game-main-score {
+    line-height: clamp(8.925rem, calc(46.2vh - 365.4px), 11.8125rem);
+  }
+
+  .game-history-pane {
+    height: clamp(8.5rem, calc(18.9vh - 71.9px), 10.625rem);
+    flex-basis: clamp(8.5rem, calc(18.9vh - 71.9px), 10.625rem);
+  }
+
   .game-keypad {
-    padding-top: 0.3rem;
-    padding-bottom: 0.3rem;
+    padding-top: clamp(0.3rem, calc(0.39vh + 0.51px), 0.34375rem);
+    padding-bottom: clamp(0.3rem, calc(0.39vh + 0.51px), 0.34375rem);
   }
 
   .game-keypad-preview {
-    height: 2.4rem;
-    margin-bottom: 0.3rem;
+    height: clamp(2.4rem, calc(2vh + 16.4px), 2.625rem);
+    margin-bottom: clamp(0.3rem, calc(0.39vh + 0.51px), 0.34375rem);
   }
 
   .game-keypad-columns,
   .game-keypad-grid,
   .game-quick-column,
   .game-keypad-bottom {
-    gap: 0.45rem;
+    gap: clamp(0.45rem, calc(0.44vh + 2.36px), 0.5rem);
   }
 
   .game-keypad-key {
-    height: 3.9rem;
-    font-size: 2.25rem;
+    height: clamp(3.9rem, calc(4.22vh + 15.98px), 4.375rem);
+    font-size: clamp(2.25rem, calc(2.22vh + 11.58px), 2.5rem);
   }
 
   .game-quick-key,
   .game-keypad-bottom button {
-    font-size: 1.8rem;
+    font-size: clamp(1.8rem, calc(1.78vh + 9.22px), 2rem);
   }
 
   .game-keypad-bottom {
-    margin-top: 0.45rem;
+    margin-top: clamp(0.45rem, calc(0.44vh + 2.36px), 0.5rem);
   }
 
   .game-keypad-bottom button {
-    height: 3.9rem;
-    min-height: 3.9rem;
+    height: clamp(3.9rem, calc(4.22vh + 15.98px), 4.375rem);
+    min-height: clamp(3.9rem, calc(4.22vh + 15.98px), 4.375rem);
   }
 
   .game-keypad-validate {
-    min-height: 4.2rem;
-    margin-top: 0.45rem;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-    font-size: 2.25rem;
+    min-height: clamp(4.2rem, calc(4.89vh + 13.41px), 4.75rem);
+    margin-top: clamp(0.45rem, calc(0.44vh + 2.36px), 0.5rem);
+    padding-top: clamp(0.75rem, calc(0.56vh + 5.84px), 0.8125rem);
+    padding-bottom: clamp(0.75rem, calc(0.56vh + 5.84px), 0.8125rem);
+    font-size: clamp(2.25rem, calc(2.22vh + 11.58px), 2.5rem);
   }
 }
 
