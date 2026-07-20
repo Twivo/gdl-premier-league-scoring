@@ -1,6 +1,6 @@
 -- Scoring stations: assignment of each fixture to a physical dartboard.
 -- The tournament management site writes target_number; scoring clients only
--- read it and filter the fixtures shown on their selected target.
+-- read it and filter the matches shown on their selected board.
 
 alter table public.premier_league_fixtures
   add column if not exists target_number integer;

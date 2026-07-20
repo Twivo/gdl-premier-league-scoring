@@ -23,7 +23,7 @@ function fixture(
   return {
     id: idFactory('plf'),
     nightId,
-    targetNumber: null,
+    boardNumber: null,
     round,
     fixtureOrder,
     playerAId,

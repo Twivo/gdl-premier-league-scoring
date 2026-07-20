@@ -43,7 +43,7 @@ export interface PremierLeagueFixture {
   id: string;
   nightId: string;
   /** Physical dartboard assigned by the external tournament manager. */
-  targetNumber?: number | null;
+  boardNumber?: number | null;
   round: PremierLeagueRound;
   fixtureOrder: number;
   playerAId: string | null;

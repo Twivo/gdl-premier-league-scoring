@@ -113,17 +113,33 @@ describe('local Premier League persistence', () => {
     expect((await repository.listInProgress()).map((row) => row.id)).toEqual(['training']);
   });
 
-  it('keeps legacy local competitions visible by deriving their old fixture targets', async () => {
+  it('keeps legacy local competitions visible and migrates their board assignments', async () => {
     const competition = localCompetition();
     competition.nights.forEach((night) =>
-      night.fixtures.forEach((fixture) => delete fixture.targetNumber),
+      night.fixtures.forEach((fixture) => {
+        const legacyFixture = fixture as typeof fixture & {
+          targetNumber?: number | null;
+        };
+        legacyFixture.targetNumber = fixture.fixtureOrder + 10;
+        delete legacyFixture.boardNumber;
+      }),
     );
     localStorage.setItem(PREMIER_LEAGUE_KEY, JSON.stringify([competition]));
 
     const reloaded = await new LocalRepository().getPremierLeagueCompetition(
       competition.id,
     );
-    expect(reloaded?.nights[0]?.fixtures[0]?.targetNumber).toBe(1);
-    expect(reloaded?.nights[0]?.fixtures[3]?.targetNumber).toBe(4);
+    expect(reloaded?.nights[0]?.fixtures[0]?.boardNumber).toBe(11);
+    expect(reloaded?.nights[0]?.fixtures[3]?.boardNumber).toBe(14);
+  });
+
+  it('keeps a current unassigned board as null', async () => {
+    const competition = localCompetition();
+    localStorage.setItem(PREMIER_LEAGUE_KEY, JSON.stringify([competition]));
+
+    const reloaded = await new LocalRepository().getPremierLeagueCompetition(
+      competition.id,
+    );
+    expect(reloaded?.nights[0]?.fixtures[0]?.boardNumber).toBeNull();
   });
 });

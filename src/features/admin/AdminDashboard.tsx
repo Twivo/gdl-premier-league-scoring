@@ -198,9 +198,9 @@ export function AdminDashboard() {
   // Per-player match history (shown when a single player is selected).
   const history = useMemo(() => {
     if (playerFilter === 'ALL') return [];
-    const target = rows.find((r) => r.name === playerFilter);
-    if (!target) return [];
-    const pid = target.playerId;
+    const selectedPlayer = rows.find((r) => r.name === playerFilter);
+    if (!selectedPlayer) return [];
+    const pid = selectedPlayer.playerId;
     return matches
       .filter((m) => m.config.players.some((p) => p.id === pid))
       .map((m) => {

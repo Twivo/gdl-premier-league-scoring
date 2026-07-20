@@ -4,17 +4,17 @@ import { makeLegForfeit } from '@/domain/events';
 import type { GameConfig } from '@/domain/types';
 import {
   PREMIER_LEAGUE_SETTINGS,
+  boardNumbers,
   calculateStandings,
   canStartFixture,
   generateLeagueNights,
-  fixturesForTarget,
-  isValidTargetNumber,
+  fixturesForBoard,
+  isValidBoardNumber,
   recordFixtureResult,
   officialTerminalLegScore,
   correctionBlockReason,
   reopenFixtureResult,
   selectTopFour,
-  targetNumbers,
   validateCompetitionPlayers,
   withFinalsNight,
   type PremierLeagueCompetition,
@@ -68,12 +68,12 @@ function finish(
   order: number,
   chooseWinner: (fixture: PremierLeagueFixture) => string = (fixture) => fixture.playerAId!,
 ): PremierLeagueCompetition {
-  const target = fixtureOf(value, nightId, round, order);
-  const winner = chooseWinner(target);
-  return recordFixtureResult(value, nightId, target.id, {
+  const fixtureToFinish = fixtureOf(value, nightId, round, order);
+  const winner = chooseWinner(fixtureToFinish);
+  return recordFixtureResult(value, nightId, fixtureToFinish.id, {
     winnerPlayerId: winner,
-    legsA: winner === target.playerAId ? target.legsToWin : 1,
-    legsB: winner === target.playerBId ? target.legsToWin : 1,
+    legsA: winner === fixtureToFinish.playerAId ? fixtureToFinish.legsToWin : 1,
+    legsB: winner === fixtureToFinish.playerBId ? fixtureToFinish.legsToWin : 1,
     finishedAt: new Date(2026, 0, sequence++).toISOString(),
   });
 }
@@ -338,33 +338,33 @@ describe('competition validation', () => {
   });
 });
 
-describe('scoring station targets', () => {
-  it('accepts only integer target numbers from 1 to 999', () => {
-    expect(isValidTargetNumber(1)).toBe(true);
-    expect(isValidTargetNumber(999)).toBe(true);
-    expect(isValidTargetNumber(0)).toBe(false);
-    expect(isValidTargetNumber(2.5)).toBe(false);
-    expect(isValidTargetNumber(1000)).toBe(false);
+describe('scoring station boards', () => {
+  it('accepts only integer board numbers from 1 to 999', () => {
+    expect(isValidBoardNumber(1)).toBe(true);
+    expect(isValidBoardNumber(999)).toBe(true);
+    expect(isValidBoardNumber(0)).toBe(false);
+    expect(isValidBoardNumber(2.5)).toBe(false);
+    expect(isValidBoardNumber(1000)).toBe(false);
   });
 
-  it('lists assigned target numbers once and in numeric order', () => {
+  it('lists assigned board numbers once and in numeric order', () => {
     const value = competition();
-    value.nights[0]!.fixtures[0]!.targetNumber = 12;
-    value.nights[0]!.fixtures[1]!.targetNumber = 2;
-    value.nights[1]!.fixtures[0]!.targetNumber = 12;
-    expect(targetNumbers(value)).toEqual([2, 12]);
+    value.nights[0]!.fixtures[0]!.boardNumber = 12;
+    value.nights[0]!.fixtures[1]!.boardNumber = 2;
+    value.nights[1]!.fixtures[0]!.boardNumber = 12;
+    expect(boardNumbers(value)).toEqual([2, 12]);
   });
 
-  it('shows only fixtures assigned to the selected target and prioritizes the active match', () => {
+  it('shows only matches assigned to the selected board and prioritizes the active match', () => {
     const value = competition();
     const first = value.nights[0]!.fixtures[0]!;
     const second = value.nights[0]!.fixtures[1]!;
     const other = value.nights[0]!.fixtures[2]!;
-    first.targetNumber = 4;
-    second.targetNumber = 4;
+    first.boardNumber = 4;
+    second.boardNumber = 4;
     second.status = 'IN_PROGRESS';
-    other.targetNumber = 5;
-    expect(fixturesForTarget(value, 4).map(({ fixture }) => fixture.id)).toEqual([
+    other.boardNumber = 5;
+    expect(fixturesForBoard(value, 4).map(({ fixture }) => fixture.id)).toEqual([
       second.id,
       first.id,
     ]);

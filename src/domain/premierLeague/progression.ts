@@ -70,10 +70,10 @@ export function canStartFixture(
 function advanceWinner(night: PremierLeagueNight, fixture: PremierLeagueFixture): void {
   const winner = fixture.winnerPlayerId;
   if (!winner) return;
-  const target = dependentFixture(night, fixture);
-  if (!target) return;
-  target[dependentSlot(fixture)] = winner;
-  if (target.playerAId && target.playerBId) target.status = 'AVAILABLE';
+  const dependent = dependentFixture(night, fixture);
+  if (!dependent) return;
+  dependent[dependentSlot(fixture)] = winner;
+  if (dependent.playerAId && dependent.playerBId) dependent.status = 'AVAILABLE';
 }
 
 export function recordFixtureResult(

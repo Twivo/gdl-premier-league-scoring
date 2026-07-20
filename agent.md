@@ -35,7 +35,7 @@ L'application doit rester:
 - `/`: accueil.
 - `/login`: page de connexion admin, ouverte par le bouton `Se connecter` de
   l'accueil (l'accueil affiche `Se connecter` ou `Se deconnecter` selon la session).
-- `/new`: nouvelle partie d'entrainement.
+- `/new`: nouveau match d'entrainement.
 - `/game/:id`: match en cours.
 - `/live`: liste des matchs live.
 - `/live/:id`: live read-only d'un match.
@@ -104,8 +104,8 @@ npm audit --json
 - Un match est reconstruit depuis `config + events`.
 - La logique de score doit rester dans `src/domain`.
 - Eviter de dupliquer les regles de darts dans les composants UI.
-- Une visite peut rester modifiable si l'UI le permet.
-- Ne pas reintroduire la suppression de visite pendant un match sans demande
+- Une volee peut rester modifiable si l'UI le permet.
+- Ne pas reintroduire la suppression de volee pendant un match sans demande
   explicite.
 - Conserver les formats de `MatchRecord`, `GameEvent`, equipes, saisons et
   rencontres.

@@ -476,7 +476,9 @@ export class SupabaseRepository implements DartsRepository {
         night.fixtures.map((fixture) => ({
           id: fixture.id,
           night_id: night.id,
-          target_number: fixture.targetNumber ?? null,
+          // `target_number` is the deployed database column; the app-facing
+          // model deliberately uses darts vocabulary (`boardNumber`).
+          target_number: fixture.boardNumber ?? null,
           round: fixture.round,
           fixture_order: fixture.fixtureOrder,
           player_a_id: fixture.playerAId,
@@ -604,7 +606,7 @@ const toPremierLeagueCompetition = (
         .map((fixture) => ({
           id: fixture.id,
           nightId: fixture.night_id,
-          targetNumber: fixture.target_number,
+          boardNumber: fixture.target_number,
           round: fixture.round,
           fixtureOrder: fixture.fixture_order,
           playerAId: fixture.player_a_id,

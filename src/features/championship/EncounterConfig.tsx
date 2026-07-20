@@ -83,13 +83,13 @@ export function EncounterConfig({
    */
   const move = (pos: number, dir: -1 | 1) => {
     setFixtures((prev) => {
-      const target = pos + dir;
+      const destination = pos + dir;
       const a = prev[pos];
-      const b = prev[target];
+      const b = prev[destination];
       if (!a || !b || !canReorder(a) || !canReorder(b)) return prev;
       const next = [...prev];
       next[pos] = b;
-      next[target] = a;
+      next[destination] = a;
       return next;
     });
   };

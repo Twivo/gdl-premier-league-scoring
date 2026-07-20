@@ -112,11 +112,11 @@ Voir [SUPABASE_SETUP.md](SUPABASE_SETUP.md) pour le detail.
 
 ## Parcours principaux
 
-### Nouvelle partie d'entrainement
+### Nouveau match d'entrainement
 
 Route: `#/new`
 
-Le joueur choisit le type de partie, les participants, le nombre de legs et le
+Le joueur choisit le format du match, les participants, le nombre de legs et le
 starter. Le match est sauvegarde automatiquement et peut etre repris depuis
 l'accueil.
 
@@ -161,7 +161,7 @@ src/
     game/                     Scoring en cours
     home/                     Accueil
     live/                     Watch live
-    setup/                    Nouvelle partie d'entrainement
+    setup/                    Nouveau match d'entrainement
     stats/                    Ecran de fin de match
   hooks/                      Hooks React reutilisables
   lib/                        Helpers transverses

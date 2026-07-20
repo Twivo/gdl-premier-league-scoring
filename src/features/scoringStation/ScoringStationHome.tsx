@@ -5,12 +5,12 @@ import { Modal } from '@/components/ui/Modal';
 import { getRepository } from '@/data';
 import { buildGameState } from '@/domain/engine';
 import {
+  boardNumbers,
   canStartFixture,
-  fixturesForTarget,
-  isValidTargetNumber,
-  targetNumbers,
+  fixturesForBoard,
+  isValidBoardNumber,
+  type BoardFixture,
   type PremierLeagueCompetition,
-  type TargetFixture,
 } from '@/domain/premierLeague';
 import { cn } from '@/lib/cn';
 import { useAuth } from '@/store/AuthContext';
@@ -22,26 +22,35 @@ import {
 } from '@/store/premierLeagueService';
 import { premierLeagueErrorText } from '@/features/premierLeague/errors';
 
-const TARGET_STORAGE_KEY = 'darts:scoring-station:target:v1';
+const BOARD_STORAGE_KEY = 'darts:scoring-station:board:v2';
+const LEGACY_TARGET_STORAGE_KEY = 'darts:scoring-station:target:v1';
 
 interface LiveScore {
   legsA: number;
   legsB: number;
 }
 
-function storedTarget(): number | null {
+function storedBoard(): number | null {
   try {
-    const value = Number(localStorage.getItem(TARGET_STORAGE_KEY));
-    return isValidTargetNumber(value) ? value : null;
+    const stored = localStorage.getItem(BOARD_STORAGE_KEY);
+    const legacy = localStorage.getItem(LEGACY_TARGET_STORAGE_KEY);
+    const value = Number(stored ?? legacy);
+    if (!isValidBoardNumber(value)) return null;
+    if (stored == null && legacy != null) {
+      localStorage.setItem(BOARD_STORAGE_KEY, String(value));
+      localStorage.removeItem(LEGACY_TARGET_STORAGE_KEY);
+    }
+    return value;
   } catch {
     return null;
   }
 }
 
-function rememberTarget(value: number | null): void {
+function rememberBoard(value: number | null): void {
   try {
-    if (value == null) localStorage.removeItem(TARGET_STORAGE_KEY);
-    else localStorage.setItem(TARGET_STORAGE_KEY, String(value));
+    localStorage.removeItem(LEGACY_TARGET_STORAGE_KEY);
+    if (value == null) localStorage.removeItem(BOARD_STORAGE_KEY);
+    else localStorage.setItem(BOARD_STORAGE_KEY, String(value));
   } catch {
     // The station remains usable when browser storage is unavailable.
   }
@@ -53,13 +62,13 @@ export function ScoringStationHome() {
   const { user, adminAvailable, signOut } = useAuth();
   const [competition, setCompetition] =
     useState<PremierLeagueCompetition | null>(null);
-  const [selectedTarget, setSelectedTarget] = useState<number | null>(
-    storedTarget,
+  const [selectedBoard, setSelectedBoard] = useState<number | null>(
+    storedBoard,
   );
   const [loading, setLoading] = useState(true);
   const [liveScores, setLiveScores] = useState<Record<string, LiveScore>>({});
   const [starterSelection, setStarterSelection] =
-    useState<TargetFixture | null>(null);
+    useState<BoardFixture | null>(null);
   const [launching, setLaunching] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -106,16 +115,16 @@ export function ScoringStationHome() {
     };
   }, [refresh]);
 
-  const knownTargets = useMemo(
-    () => (competition ? targetNumbers(competition) : []),
+  const knownBoards = useMemo(
+    () => (competition ? boardNumbers(competition) : []),
     [competition],
   );
   const assigned = useMemo(
     () =>
-      competition && selectedTarget != null
-        ? fixturesForTarget(competition, selectedTarget)
+      competition && selectedBoard != null
+        ? fixturesForBoard(competition, selectedBoard)
         : [],
-    [competition, selectedTarget],
+    [competition, selectedBoard],
   );
   const active = assigned.filter(({ fixture }) => fixture.status !== 'FINISHED');
   const finished = assigned.filter(({ fixture }) => fixture.status === 'FINISHED');
@@ -123,19 +132,19 @@ export function ScoringStationHome() {
     canStartFixture(competition!, night.id, fixture.id),
   )?.fixture.id;
 
-  const selectTarget = (targetNumber: number) => {
-    setSelectedTarget(targetNumber);
-    rememberTarget(targetNumber);
+  const selectBoard = (boardNumber: number) => {
+    setSelectedBoard(boardNumber);
+    rememberBoard(boardNumber);
   };
 
-  const changeTarget = () => {
-    setSelectedTarget(null);
-    rememberTarget(null);
+  const changeBoard = () => {
+    setSelectedBoard(null);
+    rememberBoard(null);
     setStarterSelection(null);
     setError(null);
   };
 
-  const openFixture = (selection: TargetFixture) => {
+  const openFixture = (selection: BoardFixture) => {
     if (!competition) return;
     const { night, fixture } = selection;
     if (!canStartFixture(competition, night.id, fixture.id)) return;
@@ -188,11 +197,11 @@ export function ScoringStationHome() {
             {t('scoringStation.eyebrow')}
           </p>
           <h1 className="mt-1 text-3xl font-black sm:text-5xl">
-            {selectedTarget == null
+            {selectedBoard == null
               ? t('scoringStation.title')
-              : t('scoringStation.targetTitle').replace(
+              : t('scoringStation.boardTitle').replace(
                   '{number}',
-                  String(selectedTarget),
+                  String(selectedBoard),
                 )}
           </h1>
           {competition && (
@@ -212,8 +221,8 @@ export function ScoringStationHome() {
         </div>
       </header>
 
-      {selectedTarget == null ? (
-        <TargetPicker knownTargets={knownTargets} onSelect={selectTarget} />
+      {selectedBoard == null ? (
+        <BoardPicker knownBoards={knownBoards} onSelect={selectBoard} />
       ) : (
         <>
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
@@ -221,15 +230,15 @@ export function ScoringStationHome() {
               <p className="font-black">
                 {t('scoringStation.stationReady').replace(
                   '{number}',
-                  String(selectedTarget),
+                  String(selectedBoard),
                 )}
               </p>
               <p className="mt-1 text-sm text-[var(--color-text-dim)]">
                 {t('scoringStation.autoRefresh')}
               </p>
             </div>
-            <Button variant="surface" onClick={changeTarget}>
-              {t('scoringStation.changeTarget')}
+            <Button variant="surface" onClick={changeBoard}>
+              {t('scoringStation.changeBoard')}
             </Button>
           </div>
 
@@ -254,7 +263,7 @@ export function ScoringStationHome() {
                 {active.length ? (
                   <div className="grid gap-4 md:grid-cols-2">
                     {active.map((selection) => (
-                      <TargetMatchCard
+                      <BoardMatchCard
                         key={selection.fixture.id}
                         competition={competition}
                         selection={selection}
@@ -278,7 +287,7 @@ export function ScoringStationHome() {
                   </h2>
                   <div className="grid gap-3 opacity-75 md:grid-cols-2">
                     {finished.map((selection) => (
-                      <TargetMatchCard
+                      <BoardMatchCard
                         key={selection.fixture.id}
                         competition={competition}
                         selection={selection}
@@ -331,28 +340,28 @@ export function ScoringStationHome() {
   );
 }
 
-function TargetPicker({
-  knownTargets,
+function BoardPicker({
+  knownBoards,
   onSelect,
 }: {
-  knownTargets: number[];
-  onSelect: (targetNumber: number) => void;
+  knownBoards: number[];
+  onSelect: (boardNumber: number) => void;
 }) {
   const { t } = useT();
   const [draft, setDraft] = useState(
-    knownTargets.length === 1 ? String(knownTargets[0]) : '',
+    knownBoards.length === 1 ? String(knownBoards[0]) : '',
   );
   const value = Number(draft);
-  const valid = isValidTargetNumber(value);
+  const valid = isValidBoardNumber(value);
 
   return (
     <section className="mx-auto max-w-xl rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center shadow-xl sm:p-10">
       <div className="text-6xl">🎯</div>
       <h2 className="mt-4 text-2xl font-black sm:text-3xl">
-        {t('scoringStation.chooseTarget')}
+        {t('scoringStation.chooseBoard')}
       </h2>
       <p className="mx-auto mt-2 max-w-md text-[var(--color-text-dim)]">
-        {t('scoringStation.chooseTargetHelp')}
+        {t('scoringStation.chooseBoardHelp')}
       </p>
       <form
         className="mt-7 flex flex-col gap-4"
@@ -361,11 +370,11 @@ function TargetPicker({
           if (valid) onSelect(value);
         }}
       >
-        <label htmlFor="target-number" className="text-left text-sm font-bold">
-          {t('scoringStation.targetNumber')}
+        <label htmlFor="board-number" className="text-left text-sm font-bold">
+          {t('scoringStation.boardNumber')}
         </label>
         <input
-          id="target-number"
+          id="board-number"
           type="number"
           inputMode="numeric"
           min="1"
@@ -373,19 +382,19 @@ function TargetPicker({
           step="1"
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
-          placeholder={t('scoringStation.targetPlaceholder')}
-          list="known-targets"
+          placeholder={t('scoringStation.boardPlaceholder')}
+          list="known-boards"
           autoFocus
           className="h-24 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-2)] px-5 text-center text-5xl font-black tabular-nums outline-none focus:border-[var(--color-accent)]"
         />
-        <datalist id="known-targets">
-          {knownTargets.map((number) => (
+        <datalist id="known-boards">
+          {knownBoards.map((number) => (
             <option key={number} value={number} />
           ))}
         </datalist>
-        {knownTargets.length > 0 && (
+        {knownBoards.length > 0 && (
           <div className="flex flex-wrap justify-center gap-2">
-            {knownTargets.map((number) => (
+            {knownBoards.map((number) => (
               <button
                 key={number}
                 type="button"
@@ -404,14 +413,14 @@ function TargetPicker({
           fullWidth
           disabled={!valid}
         >
-          {t('scoringStation.openTarget')}
+          {t('scoringStation.openBoard')}
         </Button>
       </form>
     </section>
   );
 }
 
-function TargetMatchCard({
+function BoardMatchCard({
   competition,
   selection,
   liveScore,
@@ -419,7 +428,7 @@ function TargetMatchCard({
   onClick,
 }: {
   competition: PremierLeagueCompetition;
-  selection: TargetFixture;
+  selection: BoardFixture;
   liveScore?: LiveScore;
   highlighted: boolean;
   onClick: () => void;
