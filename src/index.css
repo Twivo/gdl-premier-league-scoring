@@ -135,10 +135,19 @@ button {
     padding-top: 0;
   }
 
+  .game-player-card {
+    padding: 0.75rem;
+  }
+
+  .game-player-name {
+    font-size: 2rem;
+    line-height: 1.15;
+  }
+
   .game-history-pane {
-    height: 6.375rem;
+    height: 8.5rem;
     margin-top: auto;
-    flex: 0 0 6.375rem;
+    flex: 0 0 8.5rem;
   }
 
   .game-player-score {
@@ -229,8 +238,22 @@ button {
 
 /* Medium-height tablets get larger controls without losing the one-screen flow. */
 @media (min-width: 640px) and (max-width: 1535px) and (min-height: 951px) and (max-height: 1099px) {
+  .game-toolbar {
+    padding-top: 0;
+    padding-bottom: 0;
+    font-size: 0.875rem;
+  }
+
+  .game-toolbar button {
+    padding: 0.25rem 0.5rem;
+  }
+
+  .game-header {
+    padding: 0.25rem 0.5rem;
+  }
+
   .game-main-score {
-    line-height: 0.77;
+    line-height: 0.68;
   }
 
   .game-keypad-key {
@@ -255,7 +278,7 @@ button {
 
 /*
  * Landscape tablets have less vertical room once the browser chrome is
- * visible. Compact every fixed-height block so the two latest visit rows and
+ * visible. Compact every fixed-height block so the three latest visit rows and
  * the complete keypad still fit without creating a second page.
  */
 @media (max-width: 1535px) and (max-height: 950px) {
@@ -291,11 +314,12 @@ button {
   }
 
   .game-player-card {
-    padding: 0.25rem 0.5rem;
+    padding: 0.5rem;
   }
 
   .game-player-name {
-    font-size: 1.125rem;
+    font-size: 1.5rem;
+    line-height: 1.15;
   }
 
   .game-player-legs {
@@ -324,7 +348,7 @@ button {
 
   .game-main-score {
     font-size: 14.375rem;
-    line-height: 0.78;
+    line-height: 0.65;
   }
 
   .game-main-score-error {
@@ -393,8 +417,8 @@ button {
   }
 
   .game-history-pane {
-    height: 5.25rem;
-    flex-basis: 5.25rem;
+    height: 7rem;
+    flex-basis: 7rem;
   }
 
   .game-history-header {

@@ -122,16 +122,19 @@ tournoi. Les écrans historiques correspondants sont décrits à la section 11.
   en portrait intermédiaire et 469 px sur une tablette haute.
 - L’historique est placé immédiatement au-dessus du pavé. Sur une tablette
   haute, il descend ainsi dans l’espace auparavant inutilisé.
+- Les noms des joueurs mesurent 32 px en portrait et 24 px dans la vue
+  compacte. Les cartes associées montent respectivement à environ 198 et
+  174 px de hauteur pour conserver une hiérarchie lisible.
 - Les scores principaux sont dimensionnés pour rester lisibles à environ trois
   mètres : 134 px dans les cartes joueurs et 210 px pour le reste central en
   portrait ; 144 px et 230 px dans la vue compacte.
-- L’historique mesure 84–102 px de hauteur et utilise des chiffres d’environ
-  26–31 px. Sa hauteur et sa typographie ont été augmentées de 20 % tout en
-  laissant la priorité visuelle aux scores actifs.
+- L’historique mesure 112–136 px de hauteur et utilise toujours des chiffres
+  d’environ 26–31 px. Il laisse apparaître les trois dernières volées complètes
+  de chaque joueur tout en conservant les proportions typographiques validées.
 - Les touches mesurent 54 px dans la vue compacte, 56 px sur une tablette de
   hauteur intermédiaire et 62 px sur une tablette haute.
 - Mise en page centrale resserrée afin de laisser apparaître au minimum les
-  deux dernières volées complètes de chaque joueur à 1024 × 768 comme à
+  trois dernières volées complètes de chaque joueur à 1024 × 768 comme à
   768 × 1024.
 
 ### 3.2 Saisie d’une volée
