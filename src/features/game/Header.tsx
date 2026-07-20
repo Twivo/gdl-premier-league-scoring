@@ -12,12 +12,12 @@ export function Header() {
   const legNumber = state.currentLegIndex + 1;
 
   return (
-    <header className="flex shrink-0 items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-sm">
+    <header className="game-header flex shrink-0 items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-sm">
       <div
         key={activePlayerId}
         className="animate-player-switch flex items-baseline gap-2 truncate"
       >
-        <span className="text-3xl font-black sm:text-4xl">
+        <span className="game-header-player text-3xl font-black 2xl:text-4xl">
           {playerName(config, activePlayerId)}
         </span>
         {isDouble && (
@@ -25,7 +25,7 @@ export function Header() {
             {participantLabel(config, activeParticipantId)}
           </span>
         )}
-        <span className="text-lg text-[var(--color-text-dim)]">{t('game.toThrowSuffix')}</span>
+        <span className="game-header-suffix text-lg text-[var(--color-text-dim)]">{t('game.toThrowSuffix')}</span>
       </div>
 
       {saveStatus !== 'saved' && (
@@ -54,7 +54,7 @@ export function Header() {
         </span>
       )}
 
-      <div className="shrink-0 text-right text-lg text-[var(--color-text-dim)]">
+      <div className="game-header-format shrink-0 text-right text-lg text-[var(--color-text-dim)]">
         <span className="font-semibold text-[var(--color-accent)]">
           {t('game.leg')} {legNumber}
         </span>

@@ -100,3 +100,180 @@ button {
 .animate-shake {
   animation: shake 0.3s ease-in-out;
 }
+
+/*
+ * A touch tablet always keeps the scoring flow in one vertical column,
+ * regardless of its reported CSS width. The desktop split view is reserved
+ * for a genuinely wide screen controlled by a precise pointer.
+ */
+@media (min-width: 1536px) and (pointer: fine) {
+  .game-layout {
+    flex-direction: row;
+  }
+
+  .game-keypad-pane {
+    display: flex;
+    width: 520px;
+    flex-direction: column;
+    justify-content: center;
+    border-top-width: 0;
+    border-left: 1px solid var(--color-border);
+  }
+}
+
+/*
+ * Landscape tablets have less vertical room once the browser chrome is
+ * visible. Compact every fixed-height block so the two latest visit rows and
+ * the complete keypad still fit without creating a second page.
+ */
+@media (max-width: 1535px) and (max-height: 950px) {
+  .game-toolbar {
+    padding-top: 0;
+    padding-bottom: 0;
+    font-size: 0.875rem;
+  }
+
+  .game-toolbar button {
+    padding: 0.25rem 0.5rem;
+  }
+
+  .game-header {
+    padding: 0.25rem 0.5rem;
+  }
+
+  .game-header-player {
+    font-size: 1.5rem;
+  }
+
+  .game-header-suffix,
+  .game-header-format {
+    font-size: 0.875rem;
+  }
+
+  .game-scoreboard {
+    padding: 0.25rem 0.5rem 0;
+  }
+
+  .game-player-grid {
+    gap: 0.25rem;
+  }
+
+  .game-player-card {
+    padding: 0.25rem 0.5rem;
+  }
+
+  .game-player-name {
+    font-size: 1.125rem;
+  }
+
+  .game-player-legs {
+    font-size: 0.875rem;
+  }
+
+  .game-player-score {
+    font-size: 2.75rem;
+  }
+
+  .game-player-meta {
+    margin-top: 0;
+    font-size: 0.6875rem;
+    line-height: 1rem;
+  }
+
+  .game-main-score-button {
+    margin-top: 0;
+  }
+
+  .game-main-score-label {
+    font-size: 0.6875rem;
+    line-height: 1rem;
+  }
+
+  .game-main-score {
+    font-size: 4.75rem;
+  }
+
+  .game-main-score-error {
+    height: 1rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+
+  .game-keypad {
+    padding-top: 0.25rem;
+  }
+
+  .game-keypad-preview {
+    height: auto;
+    min-height: 1.5rem;
+    padding-top: 0.125rem;
+    padding-bottom: 0.125rem;
+  }
+
+  .game-keypad-buffer {
+    font-size: 1.25rem;
+  }
+
+  .game-keypad-hint {
+    font-size: 0.875rem;
+    line-height: 1rem;
+  }
+
+  .game-keypad-columns,
+  .game-keypad-grid,
+  .game-quick-column,
+  .game-keypad-bottom {
+    gap: 0.25rem;
+  }
+
+  .game-keypad-key {
+    height: 2.5rem;
+    font-size: 1.5rem;
+  }
+
+  .game-finish-hold {
+    display: none;
+  }
+
+  .game-quick-key {
+    font-size: 1.25rem;
+  }
+
+  .game-keypad-bottom {
+    margin-top: 0.25rem;
+  }
+
+  .game-keypad-bottom button {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    font-size: 1.25rem;
+  }
+
+  .game-keypad-validate {
+    margin-top: 0.25rem;
+    padding-top: 0.375rem;
+    padding-bottom: 0.375rem;
+    font-size: 1.5rem;
+  }
+
+  .game-history-header {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .game-history-cell {
+    padding: 0.25rem 0.5rem;
+  }
+
+  .game-history-score {
+    font-size: 2rem;
+  }
+
+  .game-history-remaining {
+    font-size: 1.125rem;
+  }
+
+  .game-history-darts {
+    font-size: 0.6875rem;
+  }
+}

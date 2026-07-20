@@ -262,7 +262,7 @@ export function GameScreen({
       )}
     >
       {/* top control bar (compact single line) */}
-      <div className="flex shrink-0 items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-2 py-1 text-lg">
+      <div className="game-toolbar flex shrink-0 items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-2 py-1 text-lg">
         <button
           onClick={() => navigate('/')}
           className="rounded-md px-3 py-1.5 font-semibold text-[var(--color-text-dim)] hover:bg-[var(--color-surface-2)]"
@@ -301,7 +301,7 @@ export function GameScreen({
 
       <Header />
 
-      <div className="flex min-h-0 flex-1 flex-col sm:flex-row">
+      <div className="game-layout flex min-h-0 flex-1 flex-col">
         {/* scores + finish + history (right under the remaining score) */}
         <div className="flex min-h-0 flex-1 flex-col">
           <ScoreBoard
@@ -316,7 +316,7 @@ export function GameScreen({
         </div>
 
         {/* keypad — finish long-press is integrated into the 1/2/3 keys */}
-        <div className="shrink-0 border-t border-[var(--color-border)] sm:flex sm:w-[320px] sm:flex-col sm:justify-center sm:border-l sm:border-t-0 md:w-[360px] lg:w-[520px]">
+        <div className="game-keypad-pane shrink-0 border-t border-[var(--color-border)]">
           <Keypad
             buffer={buffer}
             remainingBefore={remainingBefore}

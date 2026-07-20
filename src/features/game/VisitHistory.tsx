@@ -32,11 +32,11 @@ export function VisitHistory({ onEdit }: { onEdit: (eventId: string) => void }) 
     return (
       <button
         onClick={() => onEdit(v.event.id)}
-        className="flex items-center justify-between rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-[var(--color-surface-2)]"
+        className="game-history-cell flex items-center justify-between rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-[var(--color-surface-2)]"
       >
         <span
           className={cn(
-            'text-5xl font-black tnum',
+            'game-history-score text-5xl font-black tnum',
             v.isBust && 'text-[var(--color-accent)]',
             v.isCheckout && 'text-[var(--color-success)]',
           )}
@@ -45,10 +45,10 @@ export function VisitHistory({ onEdit }: { onEdit: (eventId: string) => void }) 
           {v.isCheckout && ' ✓'}
         </span>
         <span className="flex flex-col items-end leading-tight">
-          <span className="text-2xl font-semibold tnum text-[var(--color-text-dim)]">
+          <span className="game-history-remaining text-2xl font-semibold tnum text-[var(--color-text-dim)]">
             {v.remainingAfter}
           </span>
-          <span className="text-sm text-[var(--color-text-mute)]">
+          <span className="game-history-darts text-sm text-[var(--color-text-mute)]">
             {v.event.darts}d
           </span>
         </span>
@@ -58,7 +58,7 @@ export function VisitHistory({ onEdit }: { onEdit: (eventId: string) => void }) 
 
   return (
     <div className="flex flex-col">
-      <div className="sticky top-0 z-10 grid grid-cols-2 gap-2 border-b border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2.5">
+      <div className="game-history-header sticky top-0 z-10 grid grid-cols-2 gap-2 border-b border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2.5">
         {columns.map((c) => (
           <div
             key={c.participant.id}
