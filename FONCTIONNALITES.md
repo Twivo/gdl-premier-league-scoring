@@ -117,15 +117,19 @@ tournoi. Les écrans historiques correspondants sont décrits à la section 11.
   écrans d’au moins 1 536 px utilisés avec une souris ou un trackpad.
 - En paysage tablette, les cartes, l’historique et le pavé sont compactés pour
   conserver l’ensemble dans une seule fenêtre.
-- Sur tablette, le pavé reste ancré au bas de la fenêtre lorsque l’écran est
-  plus haut que le contenu de scoring.
+- Sur tablette, le pavé reste ancré au bas de la fenêtre et grandit vers le
+  haut selon la hauteur disponible : environ 397 px en paysage compact, 419 px
+  en portrait intermédiaire et 469 px sur une tablette haute.
+- L’historique est placé immédiatement au-dessus du pavé. Sur une tablette
+  haute, il descend ainsi dans l’espace auparavant inutilisé.
 - Les scores principaux sont dimensionnés pour rester lisibles à environ trois
-  mètres : 112 px dans les cartes joueurs et 210 px pour le reste central en
-  portrait ; 120 px et 230 px dans la vue compacte.
-- L’historique est limité à 70–85 px de hauteur et utilise des chiffres de
-  22–26 px afin de laisser la priorité visuelle aux scores actifs.
-- Dans la vue compacte, les touches passent de 40 à 48 px et la hauteur totale
-  du clavier augmente d’environ 20 %.
+  mètres : 134 px dans les cartes joueurs et 210 px pour le reste central en
+  portrait ; 144 px et 230 px dans la vue compacte.
+- L’historique mesure 84–102 px de hauteur et utilise des chiffres d’environ
+  26–31 px. Sa hauteur et sa typographie ont été augmentées de 20 % tout en
+  laissant la priorité visuelle aux scores actifs.
+- Les touches mesurent 54 px dans la vue compacte, 56 px sur une tablette de
+  hauteur intermédiaire et 62 px sur une tablette haute.
 - Mise en page centrale resserrée afin de laisser apparaître au minimum les
   deux dernières volées complètes de chaque joueur à 1024 × 768 comme à
   768 × 1024.
