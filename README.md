@@ -105,6 +105,9 @@ Voir [SUPABASE_SETUP.md](SUPABASE_SETUP.md) pour le detail.
 
 ## Documentation utilisateur
 
+- [FONCTIONNALITES.md](FONCTIONNALITES.md): inventaire fonctionnel exhaustif,
+  avec distinction entre l'application actuellement publiée, les services
+  internes et les modules historiques non exposés.
 - [MODE_D_EMPLOI.md](MODE_D_EMPLOI.md): guide d'utilisation pour lancer un
   match, scorer, suivre le live, gerer le championnat et consulter les stats.
 - [TEST_PLAN.md](TEST_PLAN.md): checklist de verification manuelle.
