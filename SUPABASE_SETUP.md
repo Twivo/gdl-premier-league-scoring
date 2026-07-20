@@ -1,161 +1,152 @@
-# Configuration Supabase — poste de scoring
+# Configuration Supabase
 
-Sans Supabase, l’application utilise le mode local. Cette procédure active le
-backend partagé, les affectations de cibles et l’authentification du scoring.
+Ce guide active le mode cloud de MorgesDartsConnect. Sans cette configuration,
+l'application reste utilisable en mode local via le stockage du navigateur.
 
-## 1. Projet et compte de scoring
+## 1. Creer le projet
 
-1. Créer un projet Supabase dans une région proche.
-2. Dans Authentication > Users, créer le compte utilisé par les postes de scoring.
-3. Désactiver les inscriptions publiques si elles ne sont pas nécessaires.
-4. Ne jamais exposer le mot de passe de base ni une clé `service_role`.
+1. Se connecter a https://supabase.com.
+2. Creer un nouveau projet.
+3. Choisir une region proche des utilisateurs.
+4. Conserver le mot de passe base de donnees dans un gestionnaire de secrets.
 
-## 2. Appliquer le SQL
+## 2. Executer les migrations
 
-Pour une nouvelle base vide, coller et exécuter une seule fois le fichier
-complet `supabase/full_deployment_from_scratch.sql` dans SQL Editor.
+Ouvrir **SQL Editor** dans Supabase, puis executer les fichiers de
+`supabase/migrations/` dans l'ordre:
 
-Il est également possible d’appliquer séparément, dans l’ordre, les migrations
-qu’il regroupe :
-
-1. `supabase/migrations/0001_init.sql`
+1. `0001_init.sql`
 2. `0002_public_scoring.sql`
 3. `0003_championship.sql`
 4. `0004_live_and_lock.sql`
 5. `0005_training_flag.sql`
-6. `0006_premier_league.sql`
-7. `0007_scoring_station_targets.sql`
+6. `0006_team_accounts.sql`
 
-Pour une base existante déjà au niveau 0005, coller et exécuter le fichier
-complet `supabase/premier_league_deployment.sql` dans SQL Editor. Il est
-commenté, idempotent et équivalent à la migration 0006.
+Ces migrations creent notamment:
 
-Pour une base déjà au niveau 0006, exécuter uniquement
-`supabase/scoring_station_deployment.sql`. Ce script idempotent est équivalent à
-la migration 0007.
+- les saisons;
+- les joueurs;
+- les matchs event-sourced;
+- les liens match/joueurs;
+- les equipes;
+- les rencontres de championnat;
+- les colonnes de verrouillage de scoring;
+- le flag genere `is_training`;
+- les comptes d'equipe (capitaines) et les policies RLS scopees;
+- les policies RLS.
 
-La migration crée :
+Optionnel: executer `supabase/seed_gdl_2025-2026.sql` si vous voulez charger
+des donnees de depart.
 
-- `premier_league_competitions` ;
-- `premier_league_players` ;
-- `premier_league_nights` ;
-- `premier_league_fixtures` ;
-- la colonne `target_number` sur les fixtures, limitée à 1–999 ou `null` ;
-- les colonnes `premier_league_competition_id`,
-  `premier_league_night_id` et `premier_league_fixture_id` sur `matches` ;
-- contraintes de statut, Night, tour, emplacement, format et joueurs distincts ;
-- limite à huit joueurs et contrôle des huit joueurs avant démarrage ;
-- indexes, triggers `updated_at` et publication Realtime ;
-- recalcul du champ généré `is_training` pour exclure championnat et Premier
-  League.
+## 3. Creer le compte admin
 
-Aucune table de classement n’est créée : le frontend dérive le classement des
-fixtures terminées.
+Dans Supabase:
 
-## 3. RLS et policies
+1. Aller dans **Authentication > Users**.
+2. Ajouter un utilisateur avec email et mot de passe.
+3. Option recommande: desactiver les inscriptions publiques dans
+   **Authentication > Providers > Email**.
 
-RLS est activée explicitement sur les quatre nouvelles tables.
+L'application suppose un usage simple avec un compte organisateur/admin.
 
-- SELECT : public pour compétitions, entrants, tableaux et résultats.
-- INSERT/UPDATE/DELETE : rôle `authenticated` uniquement.
-- `matches` : les entraînements restent publiquement scorables ; tout match
-  ayant `encounter_id` ou `premier_league_fixture_id` exige
-  `authenticated` pour l’insertion et la mise à jour.
-- `match_players` : un utilisateur anonyme ne peut ajouter des liens que sur un
-  match d’entraînement.
+Regle importante: **un compte connecte qui n'est pas capitaine est traite
+comme admin**. C'est ce qui permet a ce compte cree ici d'avoir tous les
+droits sans configuration supplementaire. Gardez donc les inscriptions
+publiques desactivees.
 
-Vérification recommandée dans SQL Editor :
+## 3bis. Creer les comptes capitaines (un par equipe)
 
-```sql
-select tablename, policyname, cmd, roles
-from pg_policies
-where schemaname = 'public'
-  and (
-    tablename like 'premier_league_%'
-    or tablename in ('matches', 'match_players')
-  )
-order by tablename, policyname;
-```
+Chaque equipe peut avoir **un seul compte generique** (le capitaine) qui gere
+uniquement son equipe. Procedure:
 
-## 4. Variables frontend
+1. Dans **Authentication > Users**, creer un compte email + mot de passe pour
+   l'equipe (ex. `capitaine.lesfleches@club.ch`). Ce sont des identifiants
+   partages au sein de l'equipe.
+2. Se connecter a l'application avec le **compte admin**.
+3. Aller dans **Statistiques > Equipes**, deplier l'equipe concernee, et dans
+   **Compte capitaine** saisir l'e-mail du compte cree, puis **Associer**.
 
-Créer `.env.local` sans le committer :
+Le capitaine se connecte ensuite via le meme ecran de connexion; il est
+automatiquement dirige vers son **espace equipe** (`/team`).
+
+Cote base, l'association email -> equipe passe par des fonctions SQL
+`admin_assign_captain` / `admin_unassign_captain` (reservees a l'admin), car la
+cle anon du frontend ne peut pas lire `auth.users` directement.
+
+## 4. Configurer l'application
+
+Copier `.env.example` vers `.env.local`:
 
 ```bash
 VITE_SUPABASE_URL=https://YOUR-PROJECT.supabase.co
 VITE_SUPABASE_ANON_KEY=YOUR-ANON-PUBLIC-KEY
 ```
 
-La clé anon est publique par conception ; la sécurité vient des policies RLS.
-Ne placer aucun secret ou `service_role` dans une variable `VITE_*`.
+La cle anon est publique par design. Ne jamais utiliser de cle `service_role`
+dans le frontend.
 
-## 5. Contrat d’affectation des cibles
+## 5. Verifier les permissions
 
-Le futur site de gestion du tournoi est responsable de la création des
-compétitions et de l’affectation des fixtures. Pour envoyer un match à la cible
-4 :
+Apres configuration:
 
-```sql
-update public.premier_league_fixtures
-set target_number = 4
-where id = '<fixture-id>';
-```
+- un visiteur non connecte peut lire les donnees publiques;
+- un visiteur non connecte peut creer/scorer un match d'entrainement;
+- un visiteur non connecte ne peut pas gerer joueurs, equipes ou saisons;
+- un visiteur non connecte ne peut pas creer/scorer une rencontre championnat;
+- un admin connecte peut gerer toutes les donnees de championnat;
+- un **capitaine** connecte peut, **pour son equipe uniquement**:
+  - gerer l'effectif (creer un joueur, ajouter/retirer un joueur de l'equipe);
+  - creer et scorer une rencontre impliquant son equipe (contre n'importe quelle
+    autre equipe);
+  - consulter l'historique et les statistiques de ses joueurs;
+- un capitaine **ne peut pas** modifier une autre equipe, scorer une rencontre
+  entre deux autres equipes, ni supprimer des matchs;
+- la lecture reste publique (l'ecran live et les statistiques en dependent):
+  le cloisonnement par equipe est un filtrage d'affichage cote capitaine, tandis
+  que l'**ecriture** est verrouillee cote base;
+- seul un admin connecte peut supprimer des matchs.
 
-Pour retirer une affectation :
+Ces regles sont enforcees cote base par RLS, pas seulement par l'interface.
+Le scoping capitaine repose sur la table `team_accounts` et les fonctions
+`current_is_admin()` / `current_team_id()`.
 
-```sql
-update public.premier_league_fixtures
-set target_number = null
-where id = '<fixture-id>';
-```
+## 6. Variables pour GitHub Pages
 
-L’index `premier_league_fixtures_target_number_idx` accélère la récupération
-des matchs d’un poste. La table est déjà publiée dans Supabase Realtime et
-protégée par ses policies RLS existantes.
+Pour le deploiement, ajouter les memes valeurs dans les secrets ou variables
+GitHub Actions:
 
-## 6. Saisons
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
 
-Au moins une saison est obligatoire lorsque le site externe crée la compétition :
+Puis pousser sur `main`. Le workflow GitHub Pages construira l'application.
+
+## 7. Ajouter une saison
+
+Exemple:
 
 ```sql
 update public.seasons set is_current = false where is_current = true;
 
 insert into public.seasons (name, starts_on, ends_on, is_current)
-values ('2026/2027', '2026-09-01', '2027-08-31', true)
-on conflict (name) do update
-set starts_on = excluded.starts_on,
-    ends_on = excluded.ends_on,
-    is_current = excluded.is_current;
+values ('2027/2028', '2027-09-01', '2028-08-31', true);
 ```
 
-L’index existant garantit une seule saison courante.
+Une seule saison doit avoir `is_current = true`.
 
-## 7. Vérification fonctionnelle
+## 8. Realtime live
 
-1. Affecter au moins une fixture avec `target_number` depuis SQL ou le site externe.
-2. Ouvrir `#/` sans session et sélectionner cette cible : lecture publique.
-3. Essayer de démarrer le match sans session : authentification requise.
-4. Ouvrir `#/login`, se connecter puis démarrer le match.
-5. Scorer et vérifier `matches.premier_league_fixture_id`.
-6. Terminer le match et vérifier le retour automatique au menu de cible.
-7. Vérifier que `encounter_id is null` et `is_training = false`.
-8. Vérifier qu’une requête anonyme UPDATE sur un match Premier League est
-   refusée.
+La migration `0004_live_and_lock.sql` ajoute `public.matches` a la publication
+Realtime Supabase. Si le live ne se met pas a jour:
 
-## 8. GitHub Pages et PWA
+1. verifier que la migration a bien ete executee;
+2. verifier que Realtime est active sur la table `matches`;
+3. verifier que les variables `VITE_SUPABASE_*` pointent vers le bon projet.
 
-Définir les mêmes valeurs publiques dans les variables/secrets du workflow
-GitHub Pages :
+## 9. Sauvegardes
 
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
+Supabase est la source de verite en mode cloud. Avant toute modification SQL
+manuelle importante:
 
-Le `HashRouter` et le service worker PWA ne demandent aucune règle serveur
-supplémentaire.
-
-## 9. Sauvegarde et retour arrière
-
-Avant la migration, sauvegarder `matches`, `players`, `seasons`,
-`encounters` et `match_players`. La migration n’efface aucune ligne
-historique ; elle remplace uniquement la définition du champ généré
-`is_training` pour tenir compte du troisième type de match.
+- exporter les tables principales;
+- tester la migration sur un projet de staging si possible;
+- verifier les policies RLS apres modification.

@@ -70,6 +70,7 @@ export function GameProvider({
   /** Championship link, preserved on every auto-save. */
   encounterId?: string | null;
   fixtureIndex?: number | null;
+  /** Premier League links, preserved on every auto-save. */
   premierLeagueCompetitionId?: string | null;
   premierLeagueNightId?: string | null;
   premierLeagueFixtureId?: string | null;

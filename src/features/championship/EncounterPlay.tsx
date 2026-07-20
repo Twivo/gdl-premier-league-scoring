@@ -3,6 +3,10 @@ import { GameProvider } from '@/store/GameContext';
 import { GameScreen } from '@/features/game/GameScreen';
 import { launchFixture, persistEncounter } from '@/store/encounterService';
 import { loadMatch } from '@/store/matchService';
+import {
+  getFixtureOrDecider,
+  withFixtureLineup,
+} from '@/domain/championship/encounter';
 import { useT } from '@/store/LangContext';
 import type { EncounterRecord, MatchRecord } from '@/data/types';
 import type { Fixture, Side } from '@/domain/championship/types';
@@ -15,12 +19,15 @@ export function EncounterPlay({
   onEncounterUpdate,
   onResult,
   onBack,
+  onConfigure,
 }: {
   encounter: EncounterRecord;
   fixture: Fixture;
   onEncounterUpdate: (e: EncounterRecord) => void;
   onResult: (winner: Side) => void;
   onBack: () => void;
+  /** Opens the encounter configuration (shown in the scoring control bar). */
+  onConfigure?: () => void;
 }) {
   const { t } = useT();
   const [match, setMatch] = useState<MatchRecord | null>(null);
@@ -46,25 +53,20 @@ export function EncounterPlay({
     bOrder: string[];
     starter: Side;
   }) => {
-    // Persist the chosen order + bull winner on the fixture, then launch.
-    const plan = {
-      ...encounter.plan,
-      fixtures: encounter.plan.fixtures.map((f) =>
-        f.index === fixture.index
-          ? {
-              ...f,
-              aPlayerIds: v.aOrder,
-              bPlayerIds: v.bOrder,
-              starterSide: v.starter,
-            }
-          : f,
-      ),
-    };
+    // Persist the chosen order + bull winner on the fixture (or the decider),
+    // then launch its match.
+    const plan = withFixtureLineup(
+      encounter.plan,
+      fixture.index,
+      v.aOrder,
+      v.bOrder,
+      v.starter,
+    );
     const enc = { ...encounter, plan };
     await persistEncounter(enc);
     const launched = await launchFixture(
       enc,
-      plan.fixtures.find((f) => f.index === fixture.index)!,
+      getFixtureOrDecider(plan, fixture.index)!,
     );
     onEncounterUpdate(launched.encounter);
     const m = await loadMatch(launched.matchId);
@@ -102,6 +104,7 @@ export function EncounterPlay({
     >
       <GameScreen
         embedded
+        onConfigure={onConfigure}
         onGameOver={(winnerId) => {
           if (winnerId === 'A' || winnerId === 'B') onResult(winnerId);
         }}

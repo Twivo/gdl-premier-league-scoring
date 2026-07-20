@@ -10,11 +10,13 @@ import {
 import { loadMatch, persistMatch } from '@/store/matchService';
 import { buildEncounterState } from '@/domain/championship/encounter';
 import { useT } from '@/store/LangContext';
+import { Loading } from '@/components/ui/Loading';
 import type { EncounterRecord } from '@/data/types';
 import type { Side } from '@/domain/championship/types';
 import { EncounterHeader } from './EncounterHeader';
 import { EncounterConfig } from './EncounterConfig';
 import { FixtureComposer } from './FixtureComposer';
+import { DeciderComposer } from './DeciderComposer';
 import { EncounterPlay } from './EncounterPlay';
 import { MatchStatsScreen } from './MatchStatsScreen';
 import { EncounterFinal } from './EncounterFinal';
@@ -43,16 +45,16 @@ export function ChampionshipRoute() {
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center text-[var(--color-text-dim)]">
-        {t('champ.loadingEncounter')}
-      </div>
-    );
+    return <Loading label={t('champ.loadingEncounter')} />;
   }
   if (!encounter) return <Navigate to="/" replace />;
 
   const state = buildEncounterState(encounter.plan, encounter.currentIndex);
   const isPlay = state.phase === 'PLAY';
+  // Once the fixture's match is launched, the scoring screen takes the whole
+  // height: the championship scoreboard line is dropped to free vertical space
+  // (Configure moves into the scoring screen's control bar).
+  const isScoring = isPlay && !!state.currentFixture?.matchId;
 
   return (
     <div className="mx-auto flex h-[100dvh] max-w-6xl flex-col bg-[var(--color-bg)]">
@@ -69,14 +71,20 @@ export function ChampionshipRoute() {
         </div>
       )}
 
-      <EncounterHeader
-        encounter={encounter}
-        state={state}
-        onConfigure={() => setConfigOpen(true)}
-      />
+      {!isScoring && (
+        <EncounterHeader
+          encounter={encounter}
+          state={state}
+          onConfigure={() => setConfigOpen(true)}
+        />
+      )}
 
       <div className="flex min-h-0 flex-1 flex-col">
-        {state.phase === 'COMPOSE' && state.composeBlock && (
+        {state.phase === 'COMPOSE' && state.isDecider && (
+          <DeciderComposer encounter={encounter} onComposed={setEncounter} />
+        )}
+
+        {state.phase === 'COMPOSE' && !state.isDecider && state.composeBlock && (
           <FixtureComposer
             encounter={encounter}
             block={state.composeBlock}
@@ -89,6 +97,7 @@ export function ChampionshipRoute() {
             encounter={encounter}
             fixture={state.currentFixture}
             onEncounterUpdate={setEncounter}
+            onConfigure={() => setConfigOpen(true)}
             onBack={() =>
               void unadvanceEncounter(encounter).then(setEncounter)
             }
@@ -109,6 +118,12 @@ export function ChampionshipRoute() {
             encounter={encounter}
             fixture={state.currentFixture}
             isLast={state.currentIndex + 1 >= state.total}
+            // A level score (5-5) after the last regular match sends us to the
+            // decisive doubles, not the final screen.
+            toDecider={
+              state.currentIndex + 1 >= state.total &&
+              state.scoreA === state.scoreB
+            }
             onNext={() => void advanceEncounter(encounter).then(setEncounter)}
             onBack={async () => {
               const f = state.currentFixture!;

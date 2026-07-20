@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { useConfirm } from '@/components/ui/ConfirmProvider';
 import { getRepository } from '@/data';
-import type { TeamWithPlayers } from '@/data/types';
+import type { TeamAccountAssignment, TeamWithPlayers } from '@/data/types';
 import { useRoster } from '@/store/RosterContext';
 import { useT } from '@/store/LangContext';
 
@@ -14,6 +14,7 @@ export function AdminTeams() {
   const { players } = useRoster();
 
   const [teams, setTeams] = useState<TeamWithPlayers[]>([]);
+  const [accounts, setAccounts] = useState<TeamAccountAssignment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -23,13 +24,19 @@ export function AdminTeams() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [memberPickerTeamId, setMemberPickerTeamId] = useState<string | null>(null);
   const [memberQuery, setMemberQuery] = useState('');
+  const [assignEmail, setAssignEmail] = useState('');
   const [busy, setBusy] = useState(false);
 
   const reload = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      setTeams(await repo.listTeams());
+      const [t, a] = await Promise.all([
+        repo.listTeams(),
+        repo.listTeamAccounts().catch(() => [] as TeamAccountAssignment[]),
+      ]);
+      setTeams(t);
+      setAccounts(a);
     } catch (e) {
       setError(e instanceof Error ? e.message : tr('admin.failedLoadTeams'));
     } finally {
@@ -61,6 +68,21 @@ export function AdminTeams() {
 
   const playerName = (id: string) =>
     players.find((p) => p.id === id)?.name ?? '???';
+
+  const captainOf = (teamId: string) =>
+    accounts.find((a) => a.teamId === teamId && a.role === 'captain')?.email ??
+    null;
+
+  const assignCaptain = (teamId: string) => {
+    const email = assignEmail.trim();
+    if (!email) return;
+    void run(async () => {
+      await repo.assignCaptain(email, teamId);
+      setAssignEmail('');
+    });
+  };
+  const unassignCaptain = (teamId: string) =>
+    void run(() => repo.unassignCaptain(teamId));
 
   // A player can belong to only one team: anyone already on a team is not
   // offered in the add-player dialog.
@@ -219,6 +241,51 @@ export function AdminTeams() {
 
                 {expanded && (
                   <div className="border-t border-[var(--color-border)] p-3">
+                    {/* captain account (one login per team) */}
+                    <div className="mb-3 rounded-lg bg-[var(--color-surface-2)] p-3">
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-dim)]">
+                        {tr('admin.captainAccount')}
+                      </p>
+                      {captainOf(t.id) ? (
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="rounded-md bg-[var(--color-accent-soft)] px-2 py-1 text-sm font-semibold text-[var(--color-accent)]">
+                            {captainOf(t.id)}
+                          </span>
+                          <button
+                            disabled={busy}
+                            onClick={() => unassignCaptain(t.id)}
+                            className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[var(--color-warning)] hover:bg-[var(--color-surface)]"
+                          >
+                            {tr('admin.captainRemove')}
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap items-center gap-2">
+                          <input
+                            type="email"
+                            value={assignEmail}
+                            onChange={(e) => setAssignEmail(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') assignCaptain(t.id);
+                            }}
+                            placeholder={tr('admin.captainEmailPlaceholder')}
+                            className="min-w-48 flex-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm outline-none focus:border-[var(--color-accent)]"
+                          />
+                          <Button
+                            variant="surface"
+                            size="sm"
+                            disabled={busy || !assignEmail.trim()}
+                            onClick={() => assignCaptain(t.id)}
+                          >
+                            {tr('admin.captainAssign')}
+                          </Button>
+                        </div>
+                      )}
+                      <p className="mt-2 text-xs text-[var(--color-text-mute)]">
+                        {tr('admin.captainHint')}
+                      </p>
+                    </div>
+
                     {/* current members (removable) */}
                     {t.playerIds.length > 0 ? (
                       <div className="mb-3 flex flex-wrap gap-2">

@@ -33,12 +33,15 @@ export function MatchStatsScreen({
   onNext,
   onBack,
   isLast,
+  toDecider,
 }: {
   encounter: EncounterRecord;
   fixture: Fixture;
   onNext: () => void;
   onBack: () => void;
   isLast: boolean;
+  /** True when the score is level (5-5): advancing opens the decisive doubles. */
+  toDecider: boolean;
 }) {
   const { t } = useT();
   const [match, setMatch] = useState<MatchRecord | null>(null);
@@ -124,7 +127,11 @@ export function MatchStatsScreen({
           {t('stats.correctScore')}
         </Button>
         <Button variant="accent" size="xl" fullWidth onClick={onNext}>
-          {isLast ? t('champ.seeFinal') : t('champ.nextMatch')}
+          {toDecider
+            ? t('champ.continueToDecider')
+            : isLast
+              ? t('champ.seeFinal')
+              : t('champ.nextMatch')}
         </Button>
       </div>
     </div>

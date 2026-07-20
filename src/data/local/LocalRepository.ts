@@ -11,6 +11,8 @@ import type {
   PlayerQuery,
   PlayerRecord,
   Season,
+  TeamAccount,
+  TeamAccountAssignment,
   TeamRecord,
   TeamWithPlayers,
   PremierLeagueCompetition,
@@ -258,6 +260,23 @@ export class LocalRepository implements DartsRepository {
     return (await this.listEncounters()).filter(
       (e) => e.status === 'IN_PROGRESS',
     );
+  }
+
+  // --- team accounts -------------------------------------------------------
+  // The local fallback has no real auth, so captain accounts don't exist here.
+  // The captain space is a cloud-only feature (like the admin area).
+
+  async getMyTeamAccount(): Promise<TeamAccount | null> {
+    return null;
+  }
+  async listTeamAccounts(): Promise<TeamAccountAssignment[]> {
+    return [];
+  }
+  async assignCaptain(): Promise<void> {
+    throw new Error('Team accounts require the cloud backend (Supabase).');
+  }
+  async unassignCaptain(): Promise<void> {
+    throw new Error('Team accounts require the cloud backend (Supabase).');
   }
 
   // --- Premier League -------------------------------------------------------

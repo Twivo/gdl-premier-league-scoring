@@ -8,6 +8,7 @@ import { listResumable } from '@/store/matchService';
 import { listResumableEncounters } from '@/store/encounterService';
 import { listLiveMatches } from '@/store/liveMatch';
 import { useT, LangToggle } from '@/store/LangContext';
+import { useAuth } from '@/store/AuthContext';
 import { participantLabel } from '@/domain/presentation';
 import type { EncounterRecord, MatchRecord } from '@/data/types';
 
@@ -19,6 +20,7 @@ const CELEBRATION_RULE_KEYS = Array.from(
 export function HomeScreen() {
   const navigate = useNavigate();
   const { t } = useT();
+  const { user, isCaptain, signOut } = useAuth();
   const [resumable, setResumable] = useState<MatchRecord[]>([]);
   const [encounters, setEncounters] = useState<EncounterRecord[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -63,7 +65,13 @@ export function HomeScreen() {
 
   return (
     <div className="relative mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center gap-10 px-6 py-12">
-      <div className="absolute right-4 top-4">
+      <div className="absolute right-4 top-4 flex items-center gap-2">
+        <button
+          onClick={user ? () => void signOut() : () => navigate('/login')}
+          className="rounded-lg border border-[var(--color-border)] px-2.5 py-1 text-xs font-bold text-[var(--color-text-dim)] transition-colors hover:text-[var(--color-text)]"
+        >
+          {t(user ? 'admin.signOut' : 'admin.signIn')}
+        </button>
         <LangToggle />
       </div>
       <div className="text-center">
@@ -157,7 +165,7 @@ export function HomeScreen() {
         variant="surface"
         size="xl"
         fullWidth
-        onClick={() => navigate('/championship/new')}
+        onClick={() => navigate('/team')}
       >
         {t('home.championship')}
       </Button>
@@ -181,7 +189,7 @@ export function HomeScreen() {
         variant="surface"
         size="lg"
         fullWidth
-        onClick={() => navigate('/admin/stats')}
+        onClick={() => navigate(isCaptain ? '/team/stats' : '/admin/players')}
       >
         {t('home.admin')}
       </Button>

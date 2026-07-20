@@ -22,14 +22,22 @@ export function EncounterHeader({
     <div className="flex shrink-0 items-stretch justify-between gap-2 border-b border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2">
       <Team name={teams.A.name} score={state.scoreA} lead={leader === 'A'} />
       <div className="flex flex-col items-center justify-center px-2 text-center">
-        <span className="text-[10px] uppercase tracking-wide text-[var(--color-text-dim)]">
-          {t('champ.matchOf')
-            .replace('{current}', String(Math.min(state.currentIndex + 1, state.total)))
-            .replace('{total}', String(state.total))}
-        </span>
-        <span className="text-xs font-semibold text-[var(--color-accent)]">
-          {t('champ.left').replace('{count}', String(state.remaining))}
-        </span>
+        {state.isDecider ? (
+          <span className="rounded-md bg-[var(--color-accent-soft)] px-2 py-0.5 text-[11px] font-black uppercase tracking-wide text-[var(--color-accent)]">
+            {t('champ.decider')}
+          </span>
+        ) : (
+          <>
+            <span className="text-[10px] uppercase tracking-wide text-[var(--color-text-dim)]">
+              {t('champ.matchOf')
+                .replace('{current}', String(Math.min(state.currentIndex + 1, state.total)))
+                .replace('{total}', String(state.total))}
+            </span>
+            <span className="text-xs font-semibold text-[var(--color-accent)]">
+              {t('champ.left').replace('{count}', String(state.remaining))}
+            </span>
+          </>
+        )}
         {onConfigure && state.phase !== 'FINAL' && (
           <button
             onClick={onConfigure}

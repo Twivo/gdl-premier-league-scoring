@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { getRepository } from '@/data';
 import { buildGameState } from '@/domain/engine';
 import { aggregatePlayerStats } from '@/domain/playerStats';
@@ -27,7 +27,10 @@ type TrendPoint = {
 export function PlayerProfile() {
   const { id = '' } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useT();
+  // The profile is reused by the captain space under /team/players/:id.
+  const backTo = location.pathname.startsWith('/team') ? '/team/stats' : '/admin/stats';
   const repo = useMemo(() => getRepository(), []);
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [seasonId, setSeasonId] = useState<string>('');
@@ -181,7 +184,7 @@ export function PlayerProfile() {
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <button
-          onClick={() => navigate('/admin/stats')}
+          onClick={() => navigate(backTo)}
           className="rounded-lg px-2 py-1 text-sm text-[var(--color-text-dim)] hover:bg-[var(--color-surface-2)]"
         >
           {t('common.back')} {t('admin.title')}

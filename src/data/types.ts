@@ -90,6 +90,25 @@ export interface TeamWithPlayers extends TeamRecord {
   playerIds: string[];
 }
 
+// --- team accounts (captain / admin logins) --------------------------------
+
+export type AccountRole = 'admin' | 'captain';
+
+/** The signed-in account's binding: a captain is scoped to one team. */
+export interface TeamAccount {
+  userId: string;
+  teamId: string | null;
+  role: AccountRole;
+}
+
+/** A captain assignment as seen by the admin (includes the login email). */
+export interface TeamAccountAssignment {
+  userId: string;
+  email: string;
+  teamId: string | null;
+  role: AccountRole;
+}
+
 export type EncounterStatus = 'IN_PROGRESS' | 'FINISHED' | 'ABANDONED';
 
 export interface EncounterRecord {

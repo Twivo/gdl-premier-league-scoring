@@ -16,11 +16,17 @@ import {
 } from '@/domain/championship/format';
 import {
   createFixtures,
+  withFixtureComposition,
   withFixtureCompositionMany,
+  withFixtureMatchId,
+  withFixtureReopened,
   withFixtureWinner,
+  deciderIndex,
+  deciderPairAllowed,
 } from '@/domain/championship/encounter';
 import type {
   ComposeBlock,
+  EncounterPlan,
   Fixture,
   Side,
   TeamSnapshot,
@@ -148,12 +154,7 @@ export async function launchFixture(
     fixtureIndex: fixture.index,
   });
 
-  const plan = {
-    ...encounter.plan,
-    fixtures: encounter.plan.fixtures.map((f) =>
-      f.index === fixture.index ? { ...f, matchId } : f,
-    ),
-  };
+  const plan = withFixtureMatchId(encounter.plan, fixture.index, matchId);
   const updated = { ...encounter, plan };
   await persistEncounter(updated);
   return { encounter: updated, matchId };
@@ -166,17 +167,34 @@ export async function recordFixtureResult(
   winner: Side,
 ): Promise<EncounterRecord> {
   const plan = withFixtureWinner(encounter.plan, fixtureIndex, winner);
-  const scoreA = plan.fixtures.filter((f) => f.winner === 'A').length;
-  const scoreB = plan.fixtures.filter((f) => f.winner === 'B').length;
-  const played = plan.fixtures.filter((f) => f.winner !== null).length;
-  const finished = played >= plan.fixtures.length;
+  const regularA = plan.fixtures.filter((f) => f.winner === 'A').length;
+  const regularB = plan.fixtures.filter((f) => f.winner === 'B').length;
+  const allRegularPlayed =
+    plan.fixtures.filter((f) => f.winner !== null).length >= plan.fixtures.length;
+  const tied = allRegularPlayed && regularA === regularB;
+  const deciderResolved = plan.decider?.winner != null;
+
+  // A level score (e.g. 5-5) is only final once the decisive doubles is played:
+  // that double is always won or lost, so the encounter can never end level.
+  const finished = (allRegularPlayed && !tied) || (tied && deciderResolved);
+
+  let winnerSide: Side | null = null;
+  if (finished) {
+    winnerSide = tied
+      ? (plan.decider?.winner ?? null) // the decisive doubles settles the tie
+      : regularA > regularB
+        ? 'A'
+        : 'B';
+  }
+
+  const { scoreA, scoreB } = scoresFor(plan);
   const updated: EncounterRecord = {
     ...encounter,
     plan,
     scoreA,
     scoreB,
     status: finished ? 'FINISHED' : 'IN_PROGRESS',
-    winner: finished ? (scoreA === scoreB ? null : scoreA > scoreB ? 'A' : 'B') : null,
+    winner: winnerSide,
     finishedAt: finished ? new Date().toISOString() : null,
   };
   await persistEncounter(updated);
@@ -192,14 +210,8 @@ export async function reopenFixture(
   encounter: EncounterRecord,
   fixtureIndex: number,
 ): Promise<EncounterRecord> {
-  const plan = {
-    ...encounter.plan,
-    fixtures: encounter.plan.fixtures.map((f) =>
-      f.index === fixtureIndex ? { ...f, winner: null } : f,
-    ),
-  };
-  const scoreA = plan.fixtures.filter((f) => f.winner === 'A').length;
-  const scoreB = plan.fixtures.filter((f) => f.winner === 'B').length;
+  const plan = withFixtureReopened(encounter.plan, fixtureIndex);
+  const { scoreA, scoreB } = scoresFor(plan);
   const updated: EncounterRecord = {
     ...encounter,
     plan,
@@ -242,6 +254,42 @@ export async function composeBlock(
 ): Promise<EncounterRecord> {
   void block;
   const plan = withFixtureCompositionMany(encounter.plan, compositions);
+  const updated = { ...encounter, plan };
+  await persistEncounter(updated);
+  return updated;
+}
+
+/** Sum fixture wins per side, including the decisive doubles once it is won. */
+function scoresFor(plan: EncounterPlan): { scoreA: number; scoreB: number } {
+  const won = (side: Side) =>
+    plan.fixtures.filter((f) => f.winner === side).length +
+    (plan.decider?.winner === side ? 1 : 0);
+  return { scoreA: won('A'), scoreB: won('B') };
+}
+
+/**
+ * Compose the decisive doubles (played only at a level score). Each side's pair
+ * must be two distinct players not already paired in this encounter's doubles.
+ */
+export async function composeDecider(
+  encounter: EncounterRecord,
+  aPair: string[],
+  bPair: string[],
+): Promise<EncounterRecord> {
+  if (
+    !deciderPairAllowed(encounter.plan, 'A', aPair) ||
+    !deciderPairAllowed(encounter.plan, 'B', bPair)
+  ) {
+    throw new Error(
+      'Chaque paire du double décisif doit être deux joueurs distincts non déjà associés dans cette rencontre.',
+    );
+  }
+  const plan = withFixtureComposition(
+    encounter.plan,
+    deciderIndex(encounter.plan),
+    aPair,
+    bPair,
+  );
   const updated = { ...encounter, plan };
   await persistEncounter(updated);
   return updated;

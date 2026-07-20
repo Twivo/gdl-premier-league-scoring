@@ -24,6 +24,7 @@ export function PreMatchSetup({
   const { t } = useT();
   const { teams } = encounter.plan;
   const isDouble = fixture.kind === 'DOUBLE';
+  const isDeciderMatch = fixture.index >= encounter.plan.fixtures.length;
   const per = isDouble ? 2 : 1;
   const pad = (ids: string[]) =>
     Array.from({ length: per }, (_, i) => ids[i] ?? '');
@@ -54,7 +55,9 @@ export function PreMatchSetup({
       )}
       <div className="mb-4 text-center">
         <div className="text-xs uppercase tracking-wide text-[var(--color-text-dim)]">
-          {t('common.match')} {fixture.index + 1} · {t(isDouble ? 'game.doubles' : 'game.singles')}
+          {isDeciderMatch ? t('champ.decider') : `${t('common.match')} ${fixture.index + 1}`}
+          {' · '}
+          {t(isDouble ? 'game.doubles' : 'game.singles')}
         </div>
         <h2 className="text-xl font-black">{t('champ.bullUp')}</h2>
       </div>

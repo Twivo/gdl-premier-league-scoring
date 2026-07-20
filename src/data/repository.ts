@@ -10,6 +10,8 @@ import type {
   PlayerQuery,
   PlayerRecord,
   Season,
+  TeamAccount,
+  TeamAccountAssignment,
   TeamRecord,
   TeamWithPlayers,
   PremierLeagueCompetition,
@@ -55,6 +57,16 @@ export interface DartsRepository {
   saveEncounter(record: EncounterRecord): Promise<void>;
   listEncounters(seasonId?: string): Promise<EncounterRecord[]>;
   listEncountersInProgress(): Promise<EncounterRecord[]>;
+
+  // team accounts (captain / admin logins) -------------------------------
+  /** The signed-in account's role + team binding (null when not applicable). */
+  getMyTeamAccount(): Promise<TeamAccount | null>;
+  /** Admin: list every captain assignment with its login email. */
+  listTeamAccounts(): Promise<TeamAccountAssignment[]>;
+  /** Admin: bind an existing account (by email) to a team as its captain. */
+  assignCaptain(email: string, teamId: string): Promise<void>;
+  /** Admin: remove a team's captain binding. */
+  unassignCaptain(teamId: string): Promise<void>;
 
   // Premier League (separate aggregate; standings remain derived) ----------
   listPremierLeagueCompetitions(): Promise<PremierLeagueCompetition[]>;
