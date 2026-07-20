@@ -43,7 +43,7 @@ export function ScoreBoard({
             >
               <div className="flex items-center justify-between">
                 <span className="flex min-w-0 items-center gap-1.5">
-                  <span className="truncate text-[28px] font-bold leading-tight lg:text-[32px]">
+                  <span className="truncate text-[24px] font-bold leading-tight sm:text-[26px] lg:text-[32px]">
                     {participantLabel(config, p.id)}
                   </span>
                   {p.id === legStarterId && (
@@ -60,7 +60,7 @@ export function ScoreBoard({
                   ● {legsWon[p.id] ?? 0}
                 </span>
               </div>
-              <div className="text-[68px] font-black tnum leading-none sm:text-[96px]">
+              <div className="text-[68px] font-black tnum leading-none sm:text-[76px] lg:text-[96px]">
                 {remaining[p.id] ?? 0}
               </div>
               <div className="mt-0.5 flex items-center gap-1 whitespace-nowrap text-sm text-[var(--color-text-dim)] lg:gap-2 lg:text-base">
@@ -87,7 +87,7 @@ export function ScoreBoard({
         </div>
         <div
           className={cn(
-            'font-black tnum leading-none text-[150px] sm:text-[180px] lg:text-[210px]',
+            'font-black tnum leading-none text-[118px] sm:text-[120px] lg:text-[210px]',
             error ? 'text-[var(--color-accent)]' : 'text-[var(--color-text)]',
           )}
         >

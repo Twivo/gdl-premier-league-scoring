@@ -112,8 +112,9 @@ tournoi. Les écrans historiques correspondants sont décrits à la section 11.
 - Affichage des moyennes et du nombre de fléchettes par camp.
 - Interface sombre à forts contrastes, chiffres tabulaires et grandes zones
   tactiles adaptées à une station placée près du board.
-- Mise en page responsive : sur tablette et écran large, l’historique reste à
-  gauche et le pavé de saisie passe à droite.
+- Mise en page responsive : dès la largeur tablette, les scores et l’historique
+  restent à gauche tandis que le pavé passe à droite ; la hauteur des deux zones
+  est compactée pour conserver l’ensemble dans une seule fenêtre.
 - Mise en page centrale resserrée afin de laisser apparaître au minimum les
   deux dernières volées complètes de chaque joueur à 1024 × 768 ; trois volées
   complètes apparaissent à 768 × 1024.

@@ -8,7 +8,7 @@ const QUICK_BOTTOM = [140, 180];
 // 1 at the top, 9 at the bottom.
 const DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 // Numpad key height, shared by every key (incl. FinishKey) so they stay aligned.
-const KEY_H = 'h-14 sm:h-16 lg:h-20';
+const KEY_H = 'h-14 sm:h-[52px] lg:h-20';
 
 /**
  * Numeric keypad. Buffer = the SCORE thrown (✓ / VALIDATE / quick scores
@@ -63,7 +63,7 @@ export function Keypad({
   return (
     <div className="select-none px-2 pb-1 pt-1">
       {/* keypad input preview / finish hint */}
-      <div className="mb-1 flex h-10 items-center justify-center rounded-lg bg-[var(--color-surface)] px-3">
+      <div className="mb-1 flex h-8 items-center justify-center rounded-lg bg-[var(--color-surface)] px-3 lg:h-10">
         {hasInput ? (
           <span className="text-4xl font-black tnum tracking-wider">{buffer}</span>
         ) : onFinish ? (
@@ -133,7 +133,7 @@ export function Keypad({
           <button
             onClick={onMiss}
             disabled={disabled}
-            className="flex-1 rounded-xl border border-[var(--color-border-strong)] bg-[var(--color-surface-2)] py-3 text-2xl font-black transition-all active:scale-95 disabled:opacity-40"
+            className="flex-1 rounded-xl border border-[var(--color-border-strong)] bg-[var(--color-surface-2)] py-2 text-2xl font-black transition-all active:scale-95 disabled:opacity-40 lg:py-3"
           >
             {t('game.miss')}
           </button>
@@ -143,7 +143,7 @@ export function Keypad({
               key={v}
               onClick={() => onQuickScore(v)}
               disabled={disabled}
-              className="flex-1 rounded-xl bg-[var(--color-surface-2)] py-3 text-2xl font-black transition-all active:scale-95 disabled:opacity-40"
+              className="flex-1 rounded-xl bg-[var(--color-surface-2)] py-2 text-2xl font-black transition-all active:scale-95 disabled:opacity-40 lg:py-3"
             >
               {v}
             </button>
@@ -153,7 +153,7 @@ export function Keypad({
           <button
             onClick={onBust}
             disabled={disabled}
-            className="flex-[1.2] rounded-xl border-2 border-[var(--color-accent)] bg-[var(--color-accent-soft)] py-3 text-2xl font-black text-[var(--color-accent-hover)] transition-all active:scale-95 disabled:opacity-40"
+            className="flex-[1.2] rounded-xl border-2 border-[var(--color-accent)] bg-[var(--color-accent-soft)] py-2 text-2xl font-black text-[var(--color-accent-hover)] transition-all active:scale-95 disabled:opacity-40 lg:py-3"
           >
             {t('game.bust')}
           </button>
@@ -164,7 +164,7 @@ export function Keypad({
       <button
         onClick={onCommit}
         disabled={disabled || !hasInput}
-        className="mt-1.5 w-full rounded-2xl bg-white py-4 text-3xl font-black text-black transition-all active:scale-[0.99] disabled:opacity-30"
+        className="mt-1.5 w-full rounded-2xl bg-white py-2.5 text-3xl font-black text-black transition-all active:scale-[0.99] disabled:opacity-30 lg:py-4"
       >
         {t('game.validate').toUpperCase()}
       </button>

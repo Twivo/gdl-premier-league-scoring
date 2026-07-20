@@ -301,7 +301,7 @@ export function GameScreen({
 
       <Header />
 
-      <div className="flex min-h-0 flex-1 flex-col md:flex-row">
+      <div className="flex min-h-0 flex-1 flex-col sm:flex-row">
         {/* scores + finish + history (right under the remaining score) */}
         <div className="flex min-h-0 flex-1 flex-col">
           <ScoreBoard
@@ -316,7 +316,7 @@ export function GameScreen({
         </div>
 
         {/* keypad — finish long-press is integrated into the 1/2/3 keys */}
-        <div className="shrink-0 border-t border-[var(--color-border)] md:flex md:w-[360px] md:flex-col md:justify-center md:border-l md:border-t-0 lg:w-[520px]">
+        <div className="shrink-0 border-t border-[var(--color-border)] sm:flex sm:w-[320px] sm:flex-col sm:justify-center sm:border-l sm:border-t-0 md:w-[360px] lg:w-[520px]">
           <Keypad
             buffer={buffer}
             remainingBefore={remainingBefore}
