@@ -121,6 +121,45 @@ button {
   }
 }
 
+/* Readable from the oche while keeping the visit log deliberately secondary. */
+@media (min-width: 640px) and (max-width: 1535px) {
+  .game-player-score {
+    font-size: 6rem;
+  }
+
+  .game-main-score {
+    font-size: 11.25rem;
+  }
+
+  .game-history-header {
+    padding: 0.1875rem 0.5rem;
+  }
+
+  .game-history-player {
+    font-size: 0.8125rem;
+    line-height: 1.125rem;
+  }
+
+  .game-history-cell {
+    padding: 0.125rem 0.5rem;
+  }
+
+  .game-history-score {
+    font-size: 1.75rem;
+    line-height: 1;
+  }
+
+  .game-history-remaining {
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .game-history-darts {
+    font-size: 0.625rem;
+    line-height: 1;
+  }
+}
+
 /*
  * Landscape tablets have less vertical room once the browser chrome is
  * visible. Compact every fixed-height block so the two latest visit rows and
@@ -171,7 +210,7 @@ button {
   }
 
   .game-player-score {
-    font-size: 2.75rem;
+    font-size: 5.5rem;
   }
 
   .game-player-meta {
@@ -190,7 +229,7 @@ button {
   }
 
   .game-main-score {
-    font-size: 4.75rem;
+    font-size: 9.5rem;
   }
 
   .game-main-score-error {
@@ -257,23 +296,29 @@ button {
   }
 
   .game-history-header {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
+    padding: 0 0.5rem;
+  }
+
+  .game-history-player {
+    font-size: 0.6875rem;
+    line-height: 1rem;
   }
 
   .game-history-cell {
-    padding: 0.25rem 0.5rem;
+    padding: 0 0.375rem;
   }
 
   .game-history-score {
-    font-size: 2rem;
+    font-size: 1.375rem;
+    line-height: 1;
   }
 
   .game-history-remaining {
-    font-size: 1.125rem;
+    font-size: 0.75rem;
+    line-height: 1;
   }
 
   .game-history-darts {
-    font-size: 0.6875rem;
+    display: none;
   }
 }

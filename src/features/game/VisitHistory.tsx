@@ -63,7 +63,7 @@ export function VisitHistory({ onEdit }: { onEdit: (eventId: string) => void }) 
           <div
             key={c.participant.id}
             className={cn(
-              'flex items-center justify-between truncate text-lg font-bold uppercase tracking-wide',
+              'game-history-player flex items-center justify-between truncate text-lg font-bold uppercase tracking-wide',
               c.participant.id === state.activeParticipantId
                 ? 'text-[var(--color-accent)]'
                 : 'text-[var(--color-text-dim)]',
@@ -72,7 +72,7 @@ export function VisitHistory({ onEdit }: { onEdit: (eventId: string) => void }) 
             <span className="truncate">
               {participantLabel(config, c.participant.id)}
             </span>
-            <span className="text-[var(--color-text-mute)]">
+            <span className="game-history-current text-[var(--color-text-mute)]">
               {state.remaining[c.participant.id] ?? 0}
             </span>
           </div>

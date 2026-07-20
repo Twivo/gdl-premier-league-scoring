@@ -117,6 +117,12 @@ tournoi. Les écrans historiques correspondants sont décrits à la section 11.
   écrans d’au moins 1 536 px utilisés avec une souris ou un trackpad.
 - En paysage tablette, les cartes, l’historique et le pavé sont compactés pour
   conserver l’ensemble dans une seule fenêtre.
+- Les scores principaux sont dimensionnés pour rester lisibles à environ trois
+  mètres : jusqu’à 96 px dans les cartes joueurs et 180 px pour le reste central
+  en portrait ; en paysage compact, ils sont doublés par rapport à l’ancienne
+  version, à 88 px et 152 px.
+- L’historique utilise volontairement des chiffres plus petits, de 22 à 28 px,
+  afin de laisser la priorité visuelle aux scores actifs.
 - Mise en page centrale resserrée afin de laisser apparaître au minimum les
   deux dernières volées complètes de chaque joueur à 1024 × 768 ; trois volées
   complètes apparaissent à 768 × 1024.
