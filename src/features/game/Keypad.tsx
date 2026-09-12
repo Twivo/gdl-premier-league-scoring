@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
 import { useLongPress } from '@/hooks/useLongPress';
 import { useT } from '@/store/LangContext';
@@ -47,14 +48,32 @@ export function Keypad({
   const hasInput = buffer !== '';
   const canBust = remainingBefore <= 180;
 
+  // A preset score that can't produce a real visit (overshoots, or exactly
+  // matches the remaining) is rejected at the button: flash it red and never
+  // let it reach the score bar, instead of committing/surfacing an error.
+  const [rejectedQuick, setRejectedQuick] = useState<number | null>(null);
+  const rejectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleQuickScore = (value: number) => {
+    if (value >= remainingBefore) {
+      setRejectedQuick(value);
+      if (rejectTimer.current) clearTimeout(rejectTimer.current);
+      rejectTimer.current = setTimeout(() => setRejectedQuick(null), 350);
+      return;
+    }
+    onQuickScore(value);
+  };
+
   const isFinishKey = (d: string) =>
     onFinish && (d === '1' || d === '2' || d === '3') && Number(d) >= finishMinDarts;
 
   const Quick = ({ value }: { value: number }) => (
     <button
-      onClick={() => onQuickScore(value)}
+      onClick={() => handleQuickScore(value)}
       disabled={disabled}
-      className="game-quick-key flex-1 rounded-lg bg-[var(--color-surface)] text-2xl font-bold text-[var(--color-text-dim)] transition-all active:scale-95 hover:text-[var(--color-text)] disabled:opacity-40"
+      className={cn(
+        'game-quick-key flex-1 rounded-lg bg-[var(--color-surface)] text-2xl font-bold text-[var(--color-text-dim)] transition-all active:scale-95 hover:text-[var(--color-text)] disabled:opacity-40',
+        rejectedQuick === value && 'animate-reject-flash',
+      )}
     >
       {value}
     </button>
@@ -141,9 +160,12 @@ export function Keypad({
           QUICK_BOTTOM.map((v) => (
             <button
               key={v}
-              onClick={() => onQuickScore(v)}
+              onClick={() => handleQuickScore(v)}
               disabled={disabled}
-              className="flex-1 rounded-xl bg-[var(--color-surface-2)] py-2 text-2xl font-black transition-all active:scale-95 disabled:opacity-40 2xl:py-3"
+              className={cn(
+                'flex-1 rounded-xl bg-[var(--color-surface-2)] py-2 text-2xl font-black transition-all active:scale-95 disabled:opacity-40 2xl:py-3',
+                rejectedQuick === v && 'animate-reject-flash',
+              )}
             >
               {v}
             </button>
