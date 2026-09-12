@@ -91,7 +91,9 @@ export function ScoreBoard({
             error ? 'text-[var(--color-accent)]' : 'text-[var(--color-text)]',
           )}
         >
-          {liveRemaining}
+          {/* A live overshoot busts the visit — never show the negative
+              intermediate value, mirror how the visit history signals a bust. */}
+          {liveRemaining < 0 ? t('game.bust') : liveRemaining}
         </div>
         <div className="game-main-score-error h-6 text-base font-semibold leading-6">
           {error ? (
