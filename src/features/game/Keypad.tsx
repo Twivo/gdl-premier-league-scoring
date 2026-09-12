@@ -53,7 +53,7 @@ export function Keypad({
   const Quick = ({ value }: { value: number }) => (
     <button
       onClick={() => onQuickScore(value)}
-      disabled={disabled}
+      disabled={disabled || hasInput}
       className="game-quick-key flex-1 rounded-lg bg-[var(--color-surface)] text-2xl font-bold text-[var(--color-text-dim)] transition-all active:scale-95 hover:text-[var(--color-text)] disabled:opacity-40"
     >
       {value}
@@ -142,7 +142,7 @@ export function Keypad({
             <button
               key={v}
               onClick={() => onQuickScore(v)}
-              disabled={disabled}
+              disabled={disabled || hasInput}
               className="flex-1 rounded-xl bg-[var(--color-surface-2)] py-2 text-2xl font-black transition-all active:scale-95 disabled:opacity-40 2xl:py-3"
             >
               {v}
