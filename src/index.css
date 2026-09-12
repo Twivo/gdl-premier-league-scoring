@@ -89,6 +89,13 @@ button {
   80% { transform: translateX(3px); }
 }
 
+@keyframes reject-flash {
+  50% {
+    background-color: var(--color-accent);
+    color: #fff;
+  }
+}
+
 .animate-pop-in {
   animation: pop-in 0.15s ease-out;
 }
@@ -99,6 +106,10 @@ button {
 
 .animate-shake {
   animation: shake 0.3s ease-in-out;
+}
+
+.animate-reject-flash {
+  animation: reject-flash 0.35s ease-in-out;
 }
 
 /*
