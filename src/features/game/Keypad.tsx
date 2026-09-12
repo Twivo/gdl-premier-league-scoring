@@ -164,7 +164,7 @@ export function Keypad({
       <button
         onClick={onCommit}
         disabled={disabled || !hasInput}
-        className="game-keypad-validate mt-1.5 w-full rounded-2xl bg-white py-2.5 text-3xl font-black text-black transition-all active:scale-[0.99] disabled:opacity-30 2xl:py-4"
+        className="game-keypad-validate mt-1.5 w-full rounded-2xl bg-[var(--color-success)] py-2.5 text-3xl font-black text-white transition-all hover:brightness-110 active:scale-[0.99] active:brightness-95 disabled:opacity-30 2xl:py-4"
       >
         {t('game.validate').toUpperCase()}
       </button>
