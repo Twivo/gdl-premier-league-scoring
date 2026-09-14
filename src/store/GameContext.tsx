@@ -45,6 +45,8 @@ interface GameContextValue {
   forfeitGame: (participantId: string) => void;
   undo: () => void;
   editVisit: (eventId: string, scored: number, darts?: number) => void;
+  /** Swap who starts leg 1 — only possible before the first dart is thrown. */
+  swapStarter: () => void;
   endGame: () => void;
 }
 
@@ -194,6 +196,11 @@ export function GameProvider({
       undo: () => dispatch({ type: 'UNDO' }),
       editVisit: (eventId, scored, darts) =>
         dispatch({ type: 'EDIT_VISIT', eventId, scored, darts }),
+      swapStarter: () => {
+        if (state.currentLegIndex !== 0) return;
+        if ((state.legs[0]?.visits.length ?? 0) > 0) return;
+        dispatch({ type: 'SWAP_STARTER' });
+      },
       endGame: () => {
         onEnd?.();
       },

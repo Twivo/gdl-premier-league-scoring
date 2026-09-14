@@ -69,6 +69,9 @@ export function ScoringStationHome() {
   const [liveScores, setLiveScores] = useState<Record<string, LiveScore>>({});
   const [starterSelection, setStarterSelection] =
     useState<BoardFixture | null>(null);
+  const [selectedStarterId, setSelectedStarterId] = useState<string | null>(
+    null,
+  );
   const [launching, setLaunching] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -157,6 +160,7 @@ export function ScoringStationHome() {
       return;
     }
     setStarterSelection(selection);
+    setSelectedStarterId(fixture.playerAId ?? fixture.playerBId ?? null);
   };
 
   const launch = async (starterPlayerId: string) => {
@@ -313,28 +317,44 @@ export function ScoringStationHome() {
         <p className="mb-4 text-sm text-[var(--color-text-dim)]">
           {t('premierLeague.starterAlternates')}
         </p>
-        <div className="flex flex-col gap-3">
-          {[
+        {(() => {
+          const starterIds = [
             starterSelection?.fixture.playerAId,
             starterSelection?.fixture.playerBId,
-          ]
-            .filter((id): id is string => !!id)
-            .map((id) => (
-              <Button
-                key={id}
-                variant="accent"
-                size="xl"
-                fullWidth
-                disabled={launching}
-                onClick={() => void launch(id)}
-              >
-                {nameOf(id)}
-              </Button>
-            ))}
-          {error && (
-            <p className="text-sm text-[var(--color-warning)]">{error}</p>
-          )}
-        </div>
+          ].filter((id): id is string => !!id);
+          return (
+            <div className="mb-4 flex flex-col gap-2">
+              {starterIds.map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  disabled={launching}
+                  onClick={() => setSelectedStarterId(id)}
+                  className={cn(
+                    'rounded-xl border-2 px-4 py-4 text-center text-lg font-black transition-all active:scale-[0.98]',
+                    selectedStarterId === id
+                      ? 'border-[var(--color-accent)] bg-[var(--color-accent)] text-white'
+                      : 'border-[var(--color-border)] bg-[var(--color-surface)]',
+                  )}
+                >
+                  {nameOf(id)}
+                </button>
+              ))}
+            </div>
+          );
+        })()}
+        <Button
+          variant="accent"
+          size="xl"
+          fullWidth
+          disabled={!selectedStarterId || launching}
+          onClick={() => selectedStarterId && void launch(selectedStarterId)}
+        >
+          {t('premierLeague.startMatch')}
+        </Button>
+        {error && (
+          <p className="mt-3 text-sm text-[var(--color-warning)]">{error}</p>
+        )}
       </Modal>
     </div>
   );

@@ -194,7 +194,7 @@ export function Keypad({
   );
 }
 
-function PlainKey({
+export function PlainKey({
   label,
   onClick,
   disabled,

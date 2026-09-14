@@ -6,6 +6,13 @@ import { useT } from '@/store/LangContext';
 import { validateVisitInput, type VisitErrorCode } from '@/domain/rules/validation';
 import { minDartsToCheckout } from '@/domain/rules/checkout';
 import { cn } from '@/lib/cn';
+import { PlainKey } from './Keypad';
+
+const DIGIT_ROWS = [
+  ['1', '2', '3'],
+  ['4', '5', '6'],
+  ['7', '8', '9'],
+];
 
 export function EditVisitModal({
   eventId,
@@ -61,6 +68,9 @@ export function EditVisitModal({
     onClose();
   };
 
+  const appendDigit = (d: string) => setValue((prev) => (prev + d).slice(0, 3));
+  const backspace = () => setValue((prev) => prev.slice(0, -1));
+
   return (
     <Modal
       open={eventId !== null}
@@ -72,23 +82,42 @@ export function EditVisitModal({
           <p className="mb-2 text-sm text-[var(--color-text-dim)]">
             {t('editVisit.help')}
           </p>
-          <input
-            autoFocus
-            inputMode="numeric"
-            value={value}
-            onChange={(e) =>
-              setValue(e.target.value.replace(/[^0-9]/g, '').slice(0, 3))
-            }
-            onKeyDown={(e) => e.key === 'Enter' && save()}
+          <div
             className={cn(
-              'w-full rounded-xl border bg-[var(--color-surface-2)] px-4 py-3 text-center text-3xl font-bold tabular-nums outline-none',
+              'flex h-16 w-full items-center justify-center rounded-xl border bg-[var(--color-surface-2)] px-4 text-4xl font-black tabular-nums tracking-wider',
               error
                 ? 'border-[var(--color-accent)]'
-                : 'border-[var(--color-border)] focus:border-[var(--color-accent)]',
+                : 'border-[var(--color-border)]',
             )}
-          />
+          >
+            {value ? (
+              value
+            ) : (
+              <span className="text-lg font-semibold text-[var(--color-text-mute)]">
+                {t('game.typeScore')}
+              </span>
+            )}
+          </div>
           <div className="mb-3 mt-1 h-5 text-center text-sm font-semibold text-[var(--color-accent)]">
             {error ?? ''}
+          </div>
+
+          <div className="mb-4 grid grid-cols-3 gap-1.5">
+            {DIGIT_ROWS.flat().map((d) => (
+              <PlainKey key={d} label={d} onClick={() => appendDigit(d)} className="h-14" />
+            ))}
+            <PlainKey label="0" onClick={() => appendDigit('0')} className="h-14" />
+            <PlainKey
+              label="⌫"
+              onClick={backspace}
+              className="h-14 text-[var(--color-text-dim)]"
+            />
+            <PlainKey
+              label="✓"
+              onClick={save}
+              disabled={!canSave}
+              className="h-14 bg-[var(--color-accent)] text-white active:bg-[var(--color-accent-hover)]"
+            />
           </div>
 
           {isCheckout && (

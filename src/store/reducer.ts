@@ -14,6 +14,7 @@ export type GameAction =
   | { type: 'APPEND_EVENT'; event: GameEvent }
   | { type: 'UNDO' }
   | { type: 'EDIT_VISIT'; eventId: string; scored: number; darts?: number }
+  | { type: 'SWAP_STARTER' }
   | { type: 'RESET_EVENTS' };
 
 export function gameReducer(
@@ -42,6 +43,14 @@ export function gameReducer(
         return updated;
       });
       return { ...state, events };
+    }
+
+    case 'SWAP_STARTER': {
+      const [a, b] = state.config.participants;
+      if (!a || !b) return state;
+      const firstStarterId =
+        state.config.firstStarterId === a.id ? b.id : a.id;
+      return { ...state, config: { ...state.config, firstStarterId } };
     }
 
     case 'RESET_EVENTS':
