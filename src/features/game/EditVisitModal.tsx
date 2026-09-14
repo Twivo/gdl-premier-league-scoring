@@ -35,6 +35,9 @@ export function EditVisitModal({
 
   const [value, setValue] = useState('');
   const [darts, setDarts] = useState(3);
+  // The pre-filled score is a suggestion, not a starting point: the first
+  // digit tapped replaces it entirely instead of appending to it.
+  const [pristine, setPristine] = useState(true);
 
   useEffect(() => {
     if (event?.type === 'VISIT') {
@@ -43,6 +46,7 @@ export function EditVisitModal({
     } else {
       setValue('');
     }
+    setPristine(true);
   }, [event]);
 
   if (!event) return null;
@@ -68,8 +72,14 @@ export function EditVisitModal({
     onClose();
   };
 
-  const appendDigit = (d: string) => setValue((prev) => (prev + d).slice(0, 3));
-  const backspace = () => setValue((prev) => prev.slice(0, -1));
+  const appendDigit = (d: string) => {
+    setValue((prev) => (pristine ? d : (prev + d).slice(0, 3)));
+    setPristine(false);
+  };
+  const backspace = () => {
+    setValue((prev) => (pristine ? '' : prev.slice(0, -1)));
+    setPristine(false);
+  };
 
   return (
     <Modal
