@@ -1,287 +1,184 @@
-# Mode d'emploi - GDL Premier League Scoring
+# Mode d'emploi — GDL Premier League Scoring
 
-Ce guide explique comment utiliser l'application pendant une soiree de darts,
-un entrainement ou un match de championnat a domicile des Jedis.
+Ce guide s'adresse au **marqueur** qui tient la tablette d'un board (une cible)
+pendant une soirée Premier League.
 
-## 1. Acceder a l'application
+La compétition, les soirées et l'affectation des matchs aux cibles sont
+préparées sur le site du tournoi. L'application de scoring affiche ces matchs
+automatiquement ; le marqueur n'a rien à créer.
 
-Ouvrir l'application dans un navigateur recent sur telephone, tablette ou
-ordinateur.
+## 1. Avant la soirée
 
-Depuis l'accueil, les actions principales sont:
+- Une tablette chargée par cible (ou branchée), avec une connexion internet.
+- Ouvrir <https://twivo.github.io/gdl-premier-league-scoring/> dans le
+  navigateur.
+- Conseillé : installer l'application sur l'écran d'accueil.
+  - Android / Chrome : menu du navigateur puis `Installer l'application`.
+  - iPad / Safari : bouton de partage puis `Sur l'écran d'accueil`.
+- Avoir un compte marqueur (adresse e-mail et mot de passe) fourni par
+  l'organisateur.
 
-- `Nouveau match d'entrainement`: lancer un match libre.
-- `Match de championnat`: creer ou reprendre une rencontre officielle.
-- `En direct`: regarder les matchs en cours.
-- `Statistiques`: acceder a l'administration et aux stats.
+## 2. Choisir sa cible
 
-Le bouton `FR / EN` en haut de l'accueil change la langue de l'interface. A cote,
-le bouton `Se connecter` / `Se deconnecter` ouvre la page de connexion admin ou
-ferme la session en cours, sans passer par le championnat.
+À la première ouverture, l'écran `Choisissez votre cible` apparaît.
 
-## 2. Installer l'application sur un appareil
+1. Toucher un des numéros proposés (ce sont les cibles réellement utilisées
+   dans la compétition) ou saisir un numéro dans `Numéro de la cible`.
+2. Toucher `Ouvrir cette cible`.
 
-GDL Premier League Scoring est une PWA. Selon le navigateur, il est possible de
-l'installer comme une application:
+La tablette retient ce choix : au prochain lancement, elle s'ouvre directement
+sur la même cible. Le bouton `Changer de cible` permet d'en changer à tout
+moment.
 
-- sur Android/Chrome: menu du navigateur puis `Installer l'application`;
-- sur iPhone/Safari: bouton de partage puis `Sur l'ecran d'accueil`;
-- sur ordinateur: icone d'installation dans la barre d'adresse si disponible.
+Le bouton `FR / EN` change la langue de l'interface.
 
-Une fois installee, l'application s'ouvre presque comme une app native.
+## 3. Se connecter
 
-## 3. Nouveau match d'entrainement
+Il faut être connecté pour scorer. Toucher `Se connecter pour scorer`, saisir
+l'e-mail et le mot de passe du compte marqueur, puis valider. Une fois
+connecté, le bouton devient `Connecté · se déconnecter`.
 
-Depuis l'accueil:
+## 4. La liste des matchs de la cible
 
-1. Cliquer sur `Nouveau match d'entrainement`.
-2. Choisir le type de jeu: `501` ou `601`.
-3. Choisir le mode: simple ou double.
-4. Choisir le nombre de legs a gagner.
-5. Ajouter les joueurs avec le bouton d'ajout et la recherche.
-6. Choisir qui commence:
-   - selection manuelle;
-   - tirage au bull.
-7. Demarrer le match.
+L'écran de la cible affiche :
 
-Le match est sauvegarde automatiquement. Si la page est fermee ou rafraichie,
-il peut etre repris depuis l'accueil.
+- **Matchs à jouer** : en cours, disponibles, puis bloqués ; le prochain match
+  jouable est mis en avant (`Prochain`) ;
+- **Terminés sur cette cible** : l'historique de la soirée.
 
-## 4. Saisir les scores pendant un match
+Chaque carte indique les deux joueurs, la soirée, le tour (quart, demie,
+finale), le format `Best of`, l'état et le score en legs.
 
-L'ecran de scoring utilise de gros chiffres pour rester lisible depuis le board,
-a environ 3 metres. Il montre:
+Un match `Bloqué` / `En attente des qualifiés` ne peut pas encore commencer :
+ses joueurs dépendent de matchs pas encore terminés. La liste se met à jour
+toute seule dès qu'un résultat arrive ou que l'organisateur affecte un
+nouveau match ; il n'y a rien à rafraîchir.
 
-- le joueur qui doit lancer, en grand;
-- les scores restants des deux joueurs, en grand, avec une petite etoile a cote
-  du nom du joueur qui commence le leg;
-- le score restant du joueur actif en tres grand au centre, qui diminue en direct
-  pendant la saisie;
-- le clavier de saisie;
-- l'historique des dernieres volees, une colonne par joueur;
-- les actions utiles comme undo, bust ou forfait.
+Messages possibles :
 
-Pour saisir une volee:
+- `En attente des données du tournoi` : la compétition n'est pas encore
+  publiée. Garder la page ouverte.
+- `Aucun match attribué à cette cible` : vérifier le numéro de cible, ou
+  attendre l'affectation par l'organisateur.
 
-1. Taper le score marque.
-2. Appuyer sur `Valider` (ou toucher le grand score central).
-3. L'application passe automatiquement au joueur suivant.
+## 5. Démarrer un match
 
-Les colonnes de scores rapides autour du clavier, ainsi que les boutons `140` et
-`180`, valident directement certains scores frequents.
+1. Toucher `Démarrer →` sur le match.
+2. Indiquer **qui lance en premier au leg 1** en touchant son nom. Le choix
+   reste modifiable tant qu'on n'a pas confirmé.
+3. Toucher `Démarrer le match →`.
 
-Sur ordinateur, le clavier physique peut piloter la saisie: les chiffres `0` a
-`9` tapent le score, `Entree` valide, `Retour arriere` efface un chiffre et
-`Echap` efface toute la saisie. Il est desactive quand une fenetre de fermeture
-ou de correction est ouverte.
+Le premier lancer alterne ensuite automatiquement à chaque leg. Une petite
+étoile à côté du nom indique le joueur qui a commencé le leg en cours.
 
-Le grand score central en cours de saisie reste en couleur normale; le rouge
-signale seulement une saisie invalide.
+Tant qu'aucune fléchette n'a été saisie, le bouton `⇄` en haut de l'écran
+permet encore d'inverser le joueur qui commence.
 
-## 5. Bust, miss et checkout
+Un match déjà commencé affiche `Reprendre →` : il reprend exactement là où il
+s'était arrêté (score, leg, joueur actif, historique).
 
-Si un joueur depasse le score restant, laisse 1, ou fait une sortie invalide,
-l'application refuse la saisie ou gere le bust selon le cas.
+## 6. Saisir une volée
 
-Quand un checkout est possible:
+L'écran de scoring montre en grand le joueur qui doit lancer, le score restant
+des deux joueurs, et au centre le score restant du joueur actif, qui diminue
+pendant la saisie.
 
-- les choix de flechettes apparaissent;
-- maintenir `1`, `2` ou `3` permet d'indiquer le nombre de flechettes utilisees;
-- `Miss` enregistre une volee a 0 sans terminer le leg.
+**Avec le pavé :**
 
-Quand le score arrive a 0 avec une sortie valide, le leg est termine et le score
-de legs est mis a jour.
+1. Taper le score de la volée (par exemple `8`, `5` pour 85).
+2. Toucher le grand bouton vert `VALIDER` (ou `✓`).
 
-## 6. Corriger une erreur
+**Avec un raccourci :** toucher directement `26`, `41`, `45`, `59`, `60`, `81`,
+`99`, `100`, `140` ou `180`. La volée est validée tout de suite.
 
-Si une erreur vient d'etre saisie:
+- Un raccourci supérieur ou égal au score restant clignote en rouge et n'est
+  pas pris en compte.
+- Les raccourcis sont désactivés tant qu'un nombre est en cours de saisie au
+  pavé : finir la saisie ou l'effacer avec `⌫`.
 
-- utiliser `Undo` pour annuler la derniere action;
-- ou cliquer une volee si l'interface propose la correction de cette volee.
+**Saisir le reste plutôt que le score :** un nombre saisi au-dessus de 180
+est compris comme le score restant voulu. On peut aussi toucher le grand score
+central (`Reste (toucher pour valider)`) pour valider le reste affiché.
 
-La suppression de volee n'est pas disponible pendant un match. La correction
-reste le moyen recommande pour garder l'historique coherent.
+**Sur ordinateur :** les touches `0` à `9` tapent le score, `Entrée` valide,
+`Retour arrière` efface un chiffre, `Échap` efface la saisie.
 
-## 7. Forfait
+L'application refuse ce qui est impossible et affiche la raison : score
+au-dessus de 180, total impossible avec trois fléchettes (172, 173, 175, 176,
+178, 179), score supérieur au reste, reste de 1, finish qui n'est pas une
+sortie double.
 
-Deux types de forfait peuvent etre proposes:
+## 7. Checkout, Miss et Bust
 
-- `Forfeit leg`: donne le leg a l'adversaire;
-- `Forfeit match`: termine le match et donne la victoire a l'adversaire.
+Quand le joueur est sur un finish possible, les touches `1`, `2` et `3`
+deviennent vertes et le message `Checkout — maintenir 1 / 2 / 3 pour le nombre
+de fléchettes` s'affiche.
 
-Une confirmation est demandee avant d'appliquer le forfait.
+- **Checkout réussi** : **maintenir** la touche correspondant au nombre de
+  fléchettes utilisées (1, 2 ou 3). Un simple appui tape le chiffre, comme
+  d'habitude.
+- On peut aussi saisir le score du finish et valider : une fenêtre demande
+  alors le nombre de fléchettes (les choix impossibles sont grisés).
+- **Miss** : le joueur a raté sa finition sans marquer ; la volée compte 0.
+- **BUST** : le joueur a dépassé, laissé 1 ou raté la sortie double. Son score
+  revient à celui du début de la volée.
 
-## 8. Reprendre un match
+Quand un leg se termine, le score de legs se met à jour et le leg suivant
+commence avec l'autre joueur. Le match s'arrête dès qu'un joueur atteint le
+nombre de legs requis.
 
-Si un match ou une rencontre est en cours, l'accueil affiche une carte de
-reprise.
+## 8. Corriger une erreur
 
-Cliquer sur `Reprendre` pour revenir exactement au bon endroit:
+- **La dernière saisie est fausse** : toucher `↩ Annuler`.
+- **Une volée plus ancienne est fausse** : toucher la ligne dans l'historique
+  des volées. Une fenêtre s'ouvre avec le pavé ; le premier chiffre tapé
+  remplace le score affiché. Valider.
 
-- score;
-- leg;
-- joueur actif;
-- historique;
-- etape de championnat si c'est une rencontre.
+Après une correction, toute la suite du match est recalculée : scores, legs,
+joueur qui commence et vainqueur restent cohérents.
 
-En mode cloud, la reprise peut aussi fonctionner depuis un autre appareil.
+## 9. Abandons
 
-## 9. Watch Live
+- `Abandonner le leg` : le leg est donné à l'adversaire.
+- `Abandonner le match` : le match se termine et l'adversaire gagne.
 
-La page `En direct` permet de suivre les matchs sans pouvoir les modifier.
+Une confirmation est toujours demandée.
 
-Depuis l'accueil:
+## 10. Fin du match
 
-- cliquer sur `En direct`;
-- ou scanner le QR code `Scan to watch`.
+À la fin, l'application affiche `Match terminé — enregistrement avant le
+retour à la cible…`, envoie le résultat au tableau de la compétition, puis
+revient à la liste de la cible. Le vainqueur apparaît automatiquement dans le
+match suivant du tableau.
 
-Le live est pratique pour:
+Si l'enregistrement échoue (réseau), toucher `Réessayer`.
 
-- les spectateurs;
-- un telephone pose a cote du board;
-- une tablette dans la salle;
-- un ecran TV.
+## 11. Coupure réseau
 
-## 10. Match de championnat
+Continuer à scorer normalement. Un petit indicateur `Hors ligne — nouvelle
+tentative` apparaît en haut ; l'application réessaie seule toutes les
+2,5 secondes et envoie toutes les volées dès le retour du réseau. Ne pas
+fermer la page tant que l'indicateur est affiché.
 
-Le mode championnat est protege par connexion admin.
+## 12. Suivre un match en direct
 
-Depuis l'accueil:
+Chaque match a une page live en lecture seule (`#/live/…`) : scores, legs,
+moyennes, joueur qui lance et volées du leg en cours, mis à jour en direct.
+La page affiche un QR code pour la partager.
 
-1. Cliquer sur `Match de championnat`.
-2. Se connecter si l'application le demande.
-3. Verifier l'equipe a domicile.
-4. Les Jedis sont selectionnes automatiquement a domicile.
-5. Choisir l'equipe adverse.
-6. Demarrer la composition.
+Si on ouvre sur un deuxième appareil un match déjà scoré ailleurs, ce deuxième
+appareil affiche `Match en cours ailleurs` (un seul marqueur par match) et
+propose `📺 En direct`.
+Si la tablette du marqueur s'éteint, le match se libère tout seul au bout
+d'environ 20 secondes et peut être repris depuis une autre tablette.
 
-Les autres equipes restent disponibles si un match exceptionnel demande une
-selection manuelle.
+## 13. Problèmes courants
 
-## 11. Deroulement d'une rencontre championnat
-
-Une rencontre contient 10 matchs:
-
-1. 4 simples;
-2. 2 doubles;
-3. 4 simples.
-
-L'application guide les etapes:
-
-- composition des simples;
-- tirage au bull;
-- match;
-- stats du match;
-- match suivant;
-- composition des doubles;
-- derniers simples;
-- resultat final.
-
-Le score de rencontre est mis a jour automatiquement apres chaque match. Il est
-affiche entre les matchs (composition, stats, resultat final). Pendant le scoring
-d'un match, cette ligne est masquee pour agrandir le score restant au centre.
-
-## 12. Modifier la configuration d'une rencontre
-
-Pendant une rencontre, le bouton de configuration permet de modifier certains
-parametres pour les matchs qui ne sont pas encore joues. Entre les matchs, il se
-trouve dans le bandeau de la rencontre. Pendant le scoring d'un match, il reste
-accessible sous le libelle `Configurer` dans la barre du haut, a cote de
-`Annuler`.
-
-Les matchs deja joues ou deja demarres doivent rester verrouilles afin de ne pas
-casser l'historique.
-
-## 13. Statistiques
-
-La section `Statistiques` est protegee par connexion admin.
-
-Elle permet de consulter:
-
-- les stats par joueur;
-- les moyennes;
-- les records;
-- l'historique des matchs;
-- les details d'une rencontre;
-- les bilans de saison.
-
-Les filtres permettent de limiter les stats par saison, joueur, type de match,
-variante ou periode.
-
-## 14. Export CSV
-
-Dans les statistiques, l'export CSV permet de recuperer les donnees visibles
-dans un tableur.
-
-Le fichier exporte est prevu pour etre ouvert dans Excel, LibreOffice ou Google
-Sheets.
-
-## 15. Gestion des joueurs
-
-Dans `Statistiques > Joueurs`, un admin peut:
-
-- ajouter un joueur;
-- renommer un joueur;
-- activer ou desactiver un joueur;
-- rechercher un joueur;
-- supprimer un joueur si aucune donnee historique ne bloque l'action.
-
-Desactiver un joueur est souvent preferable a la suppression, car cela conserve
-l'historique des matchs.
-
-## 16. Gestion des equipes
-
-Dans `Statistiques > Equipes`, un admin peut:
-
-- creer une equipe;
-- renommer une equipe;
-- ajouter des joueurs via le dialogue de recherche;
-- retirer des joueurs;
-- supprimer une equipe.
-
-Pour le championnat, chaque equipe doit avoir au moins 4 joueurs.
-
-## 17. Conseils pendant un match
-
-- Utiliser une tablette ou un telephone avec batterie suffisante.
-- Eviter de scorer le meme match depuis deux appareils en meme temps.
-- Utiliser le live pour les spectateurs plutot que de leur donner l'ecran de
-  scoring.
-- Corriger une volee rapidement si une erreur est detectee.
-- Verifier les compositions de championnat avant de lancer le premier match.
-
-## 18. Probleme courant
-
-### Je ne vois pas les joueurs
-
-Verifier dans l'admin que les joueurs existent et sont actifs.
-
-### Je ne peux pas creer un championnat
-
-Verifier:
-
-- que vous etes connecte en admin;
-- qu'il existe au moins deux equipes;
-- que chaque equipe a au moins 4 joueurs.
-
-### Le live ne bouge pas
-
-Verifier la connexion reseau et rafraichir la page live. En mode local, le live
-est limite a l'appareil/navigateur courant.
-
-### Un match a disparu de l'accueil
-
-Verifier si elle est deja terminee. Les cartes de reprise affichent seulement
-les matchs ou rencontres en cours.
-
-### Les stats ne correspondent pas a ce que j'attends
-
-Verifier les filtres actifs: saison, periode, joueur, type de match et variante.
-
-## 19. Bonnes pratiques admin
-
-- Garder une seule saison courante.
-- Desactiver les anciens joueurs plutot que supprimer leur historique.
-- Nommer clairement les equipes.
-- Verifier les compositions avant chaque rencontre.
-- Ne pas partager le compte admin avec les spectateurs.
+| Problème | Que faire |
+| --- | --- |
+| Aucun match sur ma cible | Vérifier le numéro de cible ; attendre l'affectation par l'organisateur. |
+| Le bouton démarrer est grisé | Le match attend ses qualifiés ou la soirée précédente n'est pas terminée. |
+| On me demande de me connecter | Se connecter avec le compte marqueur (section 3). |
+| « Match en cours ailleurs » | Le match est scoré sur une autre tablette ; utiliser celle-ci, ou attendre 20 s si elle est éteinte. Le bouton `📺 En direct` ouvre le live. |
+| Un raccourci ne fait rien | Il dépasse le reste, ou un nombre est en cours de saisie au pavé. |
+| « Hors ligne » | Continuer ; la sauvegarde repart seule (section 11). |

@@ -1,228 +1,162 @@
-# Plan de test manuel - GDL Premier League Scoring
+# Plan de test manuel — GDL Premier League Scoring
 
-Ce plan sert a verifier rapidement les parcours critiques apres une modification.
-Tester de preference en local et sur le site deploye.
+Ce plan vérifie les parcours publiés de la station de scoring après une
+modification. Tester de préférence en local puis sur le site déployé, sur une
+tablette (portrait et paysage).
 
-## 0. Preparation
+Les modules historiques non publiés (entraînement, championnat par équipes,
+administration, statistiques) ne sont pas couverts ici : ils demandent une
+vérification complète dédiée avant toute réactivation.
 
-- [ ] Installer les dependances: `npm install`.
-- [ ] Lancer les tests unitaires: `npm test`.
-- [ ] Lancer le build: `npm run build`.
-- [ ] Demarrer l'app: `npm run dev`.
-- [ ] En mode cloud, verifier que `.env.local` contient `VITE_SUPABASE_URL` et
+## 0. Préparation
+
+- [ ] `npm install`
+- [ ] `npm test` : tous les tests passent.
+- [ ] `npm run build` : aucune erreur.
+- [ ] `npm run dev`
+- [ ] En mode cloud, `.env.local` contient `VITE_SUPABASE_URL` et
       `VITE_SUPABASE_ANON_KEY`.
 
-Donnees recommandees:
+Données recommandées (créées sur le site du tournoi / dans Supabase) :
 
-- [ ] au moins 8 joueurs actifs;
-- [ ] une equipe `Jedis` avec au moins 4 joueurs;
-- [ ] une autre equipe avec au moins 4 joueurs;
-- [ ] une saison courante.
+- [ ] une compétition Premier League non terminée avec 8 joueurs ;
+- [ ] des matchs affectés à au moins deux cibles ;
+- [ ] un compte marqueur dans Supabase Auth.
 
-## 1. Accueil
+## 1. Choix de la cible
 
-- [ ] Le logo GDL Premier League s'affiche.
-- [ ] Le favicon est visible dans l'onglet navigateur.
-- [ ] Le switch FR/EN change les textes visibles.
-- [ ] Le bouton `Se connecter` / `Se deconnecter` en haut de l'accueil ouvre la
-      page de connexion ou ferme la session admin.
-- [ ] Les boutons principaux sont visibles:
-  - Nouveau match d'entrainement;
-  - Match de championnat;
-  - En direct;
-  - Statistiques.
-- [ ] Le QR code "Scan to watch" pointe vers `#/live`.
-- [ ] Le bouton discret des regles droles ouvre puis ferme le popup.
-- [ ] Si aucun match n'est en cours, aucune carte de reprise n'apparait.
+- [ ] Première ouverture : l'écran `Choisissez votre cible` s'affiche.
+- [ ] Les numéros de cibles utilisés dans la compétition sont proposés.
+- [ ] Saisir un numéro manuel valide (1 à 999) ouvre cette cible.
+- [ ] Recharger la page : la même cible est rouverte.
+- [ ] `Changer de cible` permet d'en choisir une autre.
+- [ ] Navigation privée (stockage indisponible) : la station fonctionne, seul
+      le souvenir de la cible est perdu.
+- [ ] Le bouton FR/EN change tous les textes visibles.
 
-## 2. Nouveau match d'entrainement
+## 2. Liste des matchs
 
-- [ ] Ouvrir `#/new`.
-- [ ] Choisir 501 puis 601.
-- [ ] Choisir simple puis double.
-- [ ] Modifier le nombre de legs a gagner.
-- [ ] Ajouter les joueurs via la recherche instantanee.
-- [ ] En simple, l'app demande un joueur par cote.
-- [ ] En double, l'app demande deux joueurs par cote.
-- [ ] Choisir le starter manuellement.
-- [ ] Choisir le tirage au bull et verifier le popup de selection du gagnant.
-- [ ] Demarrer le match.
+- [ ] Ordre : en cours, disponibles, bloqués, puis terminés.
+- [ ] Le prochain match jouable porte la mention `Prochain`.
+- [ ] Chaque carte montre joueurs, soirée, tour, `Best of`, état et score en
+      legs.
+- [ ] Un match bloqué ne peut pas être démarré.
+- [ ] Sans compétition : `En attente des données du tournoi`.
+- [ ] Cible sans match : `Aucun match attribué à cette cible`.
+- [ ] Affecter un match à la cible depuis le site du tournoi : il apparaît
+      sans recharger la page.
 
-## 3. Scoring match
+## 3. Connexion
 
-- [ ] Les chiffres sont assez gros pour etre lus depuis le board (environ 3 m):
-      scores des deux joueurs et grand score central du joueur actif.
-- [ ] Une etoile discrete apparait a cote du nom, dans la carte de score du
-      joueur qui commence le leg, et reste sur cette carte pendant tout le leg.
-- [ ] Saisir un score valide puis valider.
-- [ ] Le grand score central diminue en direct pendant la saisie.
-- [ ] Toucher le grand score central valide aussi la volee.
-- [ ] Sur ordinateur, les touches `0-9` tapent le score, `Entree` valide,
-      `Retour arriere` efface un chiffre et `Echap` efface la saisie.
-- [ ] Le clavier physique ne reagit plus quand une fenetre de fermeture ou de
-      correction est ouverte.
-- [ ] Le grand score central en cours de saisie reste en couleur normale; le
-      rouge apparait seulement pour une saisie invalide.
-- [ ] Les scores restants, le joueur actif et l'historique se mettent a jour.
-- [ ] Les scores rapides (colonnes laterales, `140` et `180`) valident
-      immediatement.
-- [ ] L'historique montre les dernieres volees de chaque joueur.
-- [ ] Le bouton Bust apparait seulement quand il est pertinent.
-- [ ] Les finishes proposent les choix de flechettes possibles.
-- [ ] Un checkout termine le leg.
-- [ ] Le starter alterne au leg suivant, et l'etoile passe sur la carte du
-      nouveau starter.
-- [ ] Gagner le nombre de legs requis affiche l'ecran final.
-- [ ] Undo annule la derniere action.
-- [ ] Une volee peut etre modifiee si l'UI le permet.
-- [ ] La suppression de volee n'est pas disponible pendant un match.
-- [ ] Forfeit leg demande confirmation et attribue le leg a l'adversaire.
-- [ ] Forfeit match demande confirmation et termine le match.
+- [ ] Sans session, démarrer un match demande la connexion.
+- [ ] Un mauvais mot de passe est refusé.
+- [ ] Une connexion valide affiche `Connecté · se déconnecter`.
+- [ ] La déconnexion fonctionne.
 
-## 4. Sauvegarde et reprise
+## 4. Démarrage d'un match
 
-- [ ] Pendant un match, rafraichir la page.
-- [ ] L'accueil affiche une carte "match en cours".
-- [ ] Resume reprend exactement le bon score, leg et joueur actif.
-- [ ] En mode cloud, verifier la reprise depuis un autre navigateur/appareil.
-- [ ] En cas de perte reseau temporaire, verifier qu'aucune saisie n'est perdue
-      apres reconnexion.
+- [ ] `Démarrer →` demande qui lance en premier au leg 1.
+- [ ] Toucher un joueur le sélectionne sans lancer le match ; on peut changer
+      d'avis.
+- [ ] `Démarrer le match →` lance le match avec le bon joueur.
+- [ ] Le match est en 501, Double Out, avec le nombre de legs du tour.
+- [ ] Le bouton `⇄` inverse le joueur qui commence avant la première
+      fléchette, puis disparaît.
+- [ ] Double appui rapide sur démarrer : un seul match est créé.
+- [ ] Un match commencé affiche `Reprendre →` et reprend au bon endroit.
 
-## 5. Live public
+## 5. Saisie des scores
 
-- [ ] Ouvrir `#/live` sans etre connecte.
-- [ ] Les matchs en cours sont listables.
-- [ ] Ouvrir un match live.
-- [ ] Le live n'affiche aucun controle de scoring.
-- [ ] Depuis un autre onglet, scorer une volee et verifier la mise a jour live.
-- [ ] Terminer le match et verifier que le recap final reste lisible.
+- [ ] Pavé : taper un score puis `VALIDER` (vert) ou `✓`.
+- [ ] Le score central diminue pendant la saisie ; il ne passe au rouge que
+      pour une saisie invalide.
+- [ ] Raccourcis 26 à 180 : validation immédiate.
+- [ ] Un raccourci ≥ score restant clignote en rouge et n'est pas enregistré.
+- [ ] Les raccourcis sont désactivés pendant une saisie au pavé.
+- [ ] Un nombre > 180 est interprété comme le reste voulu.
+- [ ] Clavier physique : `0-9`, `Entrée`, `Retour arrière`, `Échap`.
+- [ ] Refus : > 180, 172/173/175/176/178/179, score > reste, reste de 1,
+      finish sans sortie double.
+- [ ] L'historique montre au moins les trois dernières volées de chaque
+      joueur, sans débordement.
 
-## 6. Statistiques / admin
+## 6. Checkout, Miss, Bust
 
-- [ ] Ouvrir `#/admin`.
-- [ ] Sans session, l'ecran de login apparait.
-- [ ] Un mauvais mot de passe n'ouvre pas l'admin.
-- [ ] Une connexion valide donne acces aux sections admin.
-- [ ] Sign out ferme la session admin.
+- [ ] Sur un finish, les touches 1/2/3 possibles deviennent vertes.
+- [ ] Appui long sur 1/2/3 termine le leg avec ce nombre de fléchettes ;
+      appui court tape le chiffre.
+- [ ] Saisir le score du finish ouvre le choix du nombre de fléchettes, les
+      choix impossibles sont grisés.
+- [ ] `Miss` enregistre une volée à 0.
+- [ ] `BUST` n'apparaît que si le reste ≤ 180 et remet le score du début de
+      volée.
+- [ ] Le joueur qui commence alterne au leg suivant ; l'étoile suit.
+- [ ] Le match se termine au nombre de legs requis.
 
-## 7. Admin joueurs
+## 7. Corrections et abandons
 
-- [ ] Ajouter un joueur.
-- [ ] Renommer un joueur.
-- [ ] Desactiver puis reactiver un joueur.
-- [ ] Rechercher un joueur.
-- [ ] Trier la liste si le controle est disponible.
-- [ ] Supprimer un joueur sans match.
-- [ ] Verifier qu'un joueur avec historique ne peut pas etre supprime si la
-      base bloque l'operation; utiliser la desactivation a la place.
+- [ ] `↩ Annuler` annule la dernière action.
+- [ ] Toucher une ancienne volée ouvre la correction avec le pavé à l'écran
+      (pas le clavier du système).
+- [ ] Le premier chiffre tapé remplace le score pré-rempli.
+- [ ] Après correction, scores, legs et vainqueur sont recalculés.
+- [ ] `Abandonner le leg` et `Abandonner le match` demandent confirmation.
 
-## 8. Admin equipes
+## 8. Fin de match et tableau
 
-- [ ] Creer une equipe.
-- [ ] Renommer une equipe.
-- [ ] Ouvrir le dialogue d'ajout joueur.
-- [ ] Rechercher un joueur dans le dialogue.
-- [ ] Selectionner un joueur et verifier l'ajout immediat.
-- [ ] Retirer un joueur de l'equipe.
-- [ ] Verifier qu'un joueur deja dans une equipe n'est pas propose comme membre
-      disponible d'une autre equipe.
-- [ ] Rechercher une equipe.
-- [ ] Supprimer une equipe et verifier que les joueurs restent disponibles.
+- [ ] À la fin : `Match terminé — enregistrement…` puis retour à la cible.
+- [ ] Le match passe dans `Terminés sur cette cible` avec le bon score.
+- [ ] Le vainqueur apparaît dans le match suivant du tableau.
+- [ ] Couper le réseau à la fin du match : `Réessayer` apparaît et fonctionne
+      au retour du réseau.
 
-## 9. Match de championnat
+## 9. Réseau et verrou
 
-- [ ] Ouvrir `#/championship/new`.
-- [ ] Sans session admin, verifier la redirection login.
-- [ ] Apres login, verifier que l'equipe Jedis est preselectionnee a domicile.
-- [ ] Verifier que les autres equipes restent selectionnables.
-- [ ] Verifier que les autres equipes sont affichees plus discretement.
-- [ ] Choisir l'equipe adverse.
-- [ ] Demarrer la composition des premiers simples.
-- [ ] Les equipes doivent etre differentes.
-- [ ] Chaque equipe doit avoir au moins 4 joueurs.
+- [ ] Couper le réseau pendant un match : `Hors ligne — nouvelle tentative`
+      apparaît, le scoring continue.
+- [ ] Rétablir le réseau : l'indicateur disparaît, aucune volée n'est perdue
+      (vérifier sur le live ou après rechargement).
+- [ ] Ouvrir le même match sur un deuxième appareil : `Match en cours
+      ailleurs` et bouton `📺 En direct`.
+- [ ] Fermer l'appareil marqueur : au bout d'environ 20 s, le deuxième
+      appareil peut reprendre le match.
 
-## 10. Composition championnat
+## 10. Live
 
-- [ ] Composer les 4 premiers simples.
-- [ ] Demarrer le match 1.
-- [ ] Faire le tirage au bull.
-- [ ] Verifier que le gagnant du bull commence.
-- [ ] Pendant le scoring, le bandeau du score de rencontre est masque et le
-      bouton `Configurer` est accessible dans la barre du haut, a cote de
-      `Annuler`.
-- [ ] Entre les matchs (composition, stats, final), le bandeau du score de
-      rencontre reapparait.
-- [ ] Terminer un match.
-- [ ] Verifier que le score de rencontre augmente.
-- [ ] Passer au match suivant.
-- [ ] Apres 4 simples, composer les 2 doubles.
-- [ ] Apres les doubles, composer les 4 derniers simples.
-- [ ] Les matchs deja joues ne doivent pas etre modifies par la configuration.
+- [ ] `#/live/:id` s'ouvre sans être connecté.
+- [ ] Aucun contrôle de scoring n'est affiché.
+- [ ] Scorer une volée ailleurs : le live se met à jour.
+- [ ] Un bust n'affiche jamais de reste négatif.
+- [ ] Le QR code ouvre la même page sur un téléphone.
 
-## 11. Championnat final et admin championnat
+## 11. Affichage
 
-- [ ] Terminer les 10 matchs.
-- [ ] L'ecran final affiche le vainqueur, le score et les stats.
-- [ ] Terminer la rencontre revient a l'accueil.
-- [ ] Ouvrir `#/admin/championship`.
-- [ ] La rencontre apparait dans la liste.
-- [ ] Ouvrir la rencontre.
-- [ ] Ouvrir le detail d'un match.
-- [ ] Les forfaits s'affichent sans erreur si un match a ete termine par forfait.
+- [ ] Tablette portrait et paysage : une seule colonne, pavé ancré en bas,
+      `VALIDER` entièrement visible.
+- [ ] Scores lisibles à environ 3 m.
+- [ ] Écran ≥ 1 536 px avec souris : vue gauche/droite.
+- [ ] Les fenêtres (checkout, correction, confirmation) restent utilisables sur
+      petit écran.
 
-## 12. Dashboard statistiques
+## 12. Sécurité
 
-- [ ] Ouvrir `#/admin/stats`.
-- [ ] Verifier les filtres: saison, joueur, type, variante, periode.
-- [ ] Trier plusieurs colonnes.
-- [ ] Selectionner un joueur et verifier son historique.
-- [ ] Ouvrir le detail d'un match.
-- [ ] Exporter en CSV.
-- [ ] Ouvrir le CSV dans un tableur et verifier les colonnes.
-- [ ] Les donnees potentiellement interpretees comme formules doivent etre
-      neutralisees dans l'export.
+- [ ] Scorer demande une session.
+- [ ] Le live reste en lecture seule.
+- [ ] Aucune clé `service_role` ni secret dans le frontend ou les nouveaux
+      fichiers.
+- [ ] `npm audit --json` ne remonte pas de vulnérabilité connue.
 
-## 13. Responsive
+## Non-régression ciblée
 
-- [ ] Mobile portrait: scoring utilisable sans zoom.
-- [ ] Tablette paysage et laptop: score, clavier et historique restent lisibles,
-      et l'historique montre les dernieres volees sans deborder.
-- [ ] Sur tablette d'au moins 11 pouces et grand ecran, les touches du clavier
-      et le score restant central sont agrandis sans provoquer de debordement.
-- [ ] Le clavier et le bouton `Valider` restent entierement visibles a l'ecran.
-- [ ] Les textes des boutons ne debordent pas.
-- [ ] Les popups restent accessibles sur petit ecran.
-- [ ] Le logo d'accueil ne masque pas les boutons principaux.
-
-## 14. Securite
-
-- [ ] Les routes admin demandent une session.
-- [ ] Les routes championnat demandent une session.
-- [ ] Le live reste public et sans controle d'ecriture.
-- [ ] La cle `service_role` Supabase n'est jamais presente dans le frontend.
-- [ ] `npm audit --json` ne remonte aucune vulnerabilite connue.
-- [ ] Les nouveaux fichiers ne contiennent pas de token ou secret.
-
-## 15. Non-regression ciblee
-
-Apres une modification dans une zone, verifier au minimum:
-
-- UI accueil: sections 1 et 13;
-- setup/scoring: sections 2, 3 et 4;
-- live: section 5;
-- admin joueurs/equipes: sections 6, 7 et 8;
-- championnat: sections 9, 10 et 11;
-- stats/export: section 12;
-- securite/config: sections 6 et 14.
+- station / liste des matchs : sections 1, 2 et 3 ;
+- démarrage, scoring : sections 4 à 7 ;
+- résultats et tableau : section 8 ;
+- sauvegarde, verrou, live : sections 9 et 10 ;
+- mise en page : section 11 ;
+- sécurité / configuration : section 12.
 
 ## Rapport de bug
 
-Noter:
-
-- l'environnement: local ou prod;
-- le navigateur/appareil;
-- les donnees utilisees;
-- l'action faite;
-- le resultat attendu;
-- le resultat obtenu;
-- une capture si possible.
+Noter : l'environnement (local ou prod), l'appareil et le navigateur, la cible
+et le match concernés, l'action faite, le résultat attendu, le résultat
+obtenu, et une capture si possible.

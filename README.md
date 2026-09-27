@@ -1,257 +1,196 @@
 # GDL Premier League Scoring
 
-GDL Premier League Scoring est une application de scoring de darts pensée d'abord pour
-les matchs a domicile des Jedis, puis etendue vers une petite plateforme de
-club: matchs d'entrainement, rencontres de championnat, statistiques joueurs,
-equipes, live public et mode PWA.
+GDL Premier League Scoring est la **station de scoring** des soirées Premier
+League GDL : une tablette posée à côté de chaque board (cible), sur laquelle le
+marqueur choisit son board, voit les matchs qui y sont affectés et les score en
+501 Double Out. Chaque match peut être suivi en direct, en lecture seule.
 
-Le coeur du projet est volontairement simple: un match stocke une configuration
-et une liste d'evenements. Les scores, legs, moyennes, checkouts et statistiques
-sont recalcules par le moteur TypeScript pur a partir de ces evenements.
+L'application est publiée sur GitHub Pages :
+<https://twivo.github.io/gdl-premier-league-scoring/>
 
-## Fonctionnalites
+La création de la compétition, l'affectation des matchs aux boards et
+l'administration du tournoi se font sur le **site externe du tournoi**.
+L'application de scoring lit ces données et y renvoie les résultats.
 
-- Scoring X01 en 501 ou 601, sortie double.
-- Ecran de scoring a gros chiffres, lisible depuis le board (environ 3 metres):
-  scores restants des deux joueurs en grand et score du joueur actif en tres
-  grand au centre.
-- Etoile discrete a cote du nom, dans la carte de score du joueur qui commence
-  le leg.
-- Saisie au clavier tactile inverse, et au clavier physique sur ordinateur
-  (chiffres, Entree, Retour arriere, Echap).
-- Matchs simples et doubles.
-- Mode entrainement public et rapide, utilisable sans connexion.
-- Connexion / deconnexion directement depuis l'accueil, avec page dediee `#/login`.
-- Mode championnat protege par connexion admin.
-- Rencontre de championnat par equipes: 4 simples, 2 doubles, 4 simples.
-- Preselection de l'equipe Jedis a domicile, avec choix manuel toujours possible.
-- Sauvegarde et reprise des matchs en cours.
-- Live public en lecture seule, avec QR code depuis l'accueil.
-- Mode TV club pour afficher les matchs en direct.
-- Gestion admin des joueurs, equipes, saisons et resultats.
-- Statistiques joueurs et championnat, avec export CSV.
-- Interface FR/EN via un dictionnaire local.
-- PWA installable avec favicon et icones dedies.
+Le cœur du projet est volontairement simple : un match stocke une configuration
+et une liste d'événements (volées, busts, forfaits). Les scores, legs, moyennes,
+checkouts et statistiques sont recalculés par un moteur TypeScript pur à partir
+de ces événements.
 
-## Modes de donnees
+## Fonctionnalités publiées
 
-L'application peut tourner dans deux modes.
+- **Station de board** : choix du numéro de board (mémorisé sur l'appareil),
+  liste des matchs affectés classés par état (en cours, disponibles, bloqués,
+  terminés), mise en avant du prochain match, mise à jour en temps réel.
+- **Démarrage d'un match** : connexion obligatoire, choix du joueur qui lance
+  en premier puis confirmation ; alternance automatique à chaque leg. Le
+  démarrage est idempotent : jamais deux matchs pour la même fixture.
+- **Écran de scoring** pensé tablette, lisible à environ 3 mètres :
+  - pavé numérique tactile et raccourcis 26, 41, 45, 59, 60, 81, 99, 100, 140,
+    180 ;
+  - un raccourci supérieur ou égal au score restant est refusé sur place, et
+    les raccourcis sont désactivés pendant une saisie au pavé ;
+  - clavier physique sur ordinateur (chiffres, Entrée, Retour arrière, Échap) ;
+  - checkout confirmé avec le nombre de fléchettes (appui long sur 1, 2 ou 3),
+    Miss, Bust, abandon du leg ou du match ;
+  - annulation et correction d'une ancienne volée avec le même pavé, puis
+    recalcul complet du match ;
+  - bouton pour changer le joueur qui commence, tant qu'aucune fléchette n'a
+    été lancée.
+- **Règles vérifiées** : 0 à 180, totaux impossibles refusés (172, 173, 175,
+  176, 178, 179), interdiction de laisser 1, sortie double obligatoire
+  (checkout maximum 170, bull compris).
+- **Format Premier League** : 8 joueurs, 7 soirées (quarts, demies, finale en
+  Best of 5), points 5/3/2, classement avec départages, Top 4 qualifié pour la
+  Finals Night (demies en Best of 9, finale en Best of 11). Les vainqueurs
+  avancent automatiquement dans le tableau.
+- **Live** en lecture seule par match (`#/live/:id`), avec QR code de partage.
+  Un deuxième appareil qui ouvre un match déjà en cours de scoring est bloqué
+  et redirigé vers ce live.
+- **Fiabilité** : sauvegarde après chaque volée, nouvelle tentative
+  automatique toutes les 2,5 s en cas de coupure, verrou « un seul marqueur par
+  match ».
+- Interface FR/EN, PWA installable.
 
-### Mode local
+L'inventaire détaillé, à jour, est dans [FONCTIONNALITES.md](FONCTIONNALITES.md).
 
-Si aucune variable Supabase n'est configuree, l'application utilise le stockage
-local du navigateur. C'est pratique pour tester, developper ou faire une demo
-hors ligne.
+## Routes publiées
 
-### Mode cloud
+| Route | Rôle |
+| --- | --- |
+| `#/` | Station de scoring : choix du board et liste de ses matchs |
+| `#/login` | Connexion du marqueur ou de l'organisateur |
+| `#/game/:id` | Scoring d'un match |
+| `#/live/:id` | Suivi public, en lecture seule, d'un match |
+| toute autre route | Redirection vers la station |
 
-Si `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` sont definies, l'application
-utilise Supabase pour les joueurs, equipes, saisons, matchs et rencontres.
+## Modules historiques (présents mais non publiés)
 
-La cle anon Supabase est publique par nature. La protection repose sur les
-policies RLS cote base de donnees:
+Le projet a commencé comme une application de club plus large. Ces écrans sont
+toujours dans le code mais leurs routes ont été retirées de `src/App.tsx` le
+19 juillet 2026 :
 
-- lecture publique des donnees utiles au live et aux stats;
-- creation/scoring d'un match d'entrainement possible sans compte;
-- suppression de match reservee a l'admin;
-- joueurs, equipes, saisons, stats admin et championnat reserves a l'admin;
-- rencontres de championnat et matchs lies a une rencontre reserves a l'admin.
+- accueil de club, matchs d'entraînement (501/601, simple ou double) ;
+- championnat par équipes (4 simples, 2 doubles, 4 simples) ;
+- liste générale du live et mode TV ;
+- administration des joueurs, équipes et saisons ; statistiques et export
+  CSV/Excel ;
+- écrans d'organisation Premier League (création, tableaux, dérogations).
+
+Ils ne doivent pas être considérés comme disponibles sans réactivation et
+nouvelle vérification complète. Voir la section 11 de
+[FONCTIONNALITES.md](FONCTIONNALITES.md).
 
 ## Stack
 
-- React 18
-- TypeScript
-- Vite 6
+- React 18, TypeScript, Vite 6
 - TailwindCSS 4
 - React Router 6 en `HashRouter`
-- Supabase: Postgres, Auth, RLS, Realtime
+- Supabase : Postgres, Auth, RLS, Realtime
 - Vitest
 - vite-plugin-pwa
 
-## Demarrage
+## Démarrage
 
 ```bash
 npm install
-npm run dev
-npm test
-npm run build
-```
-
-Commandes utiles:
-
-```bash
 npm run dev        # serveur local Vite
-npm run build      # verification TypeScript + build production
 npm test           # tests unitaires du domaine
+npm run build      # vérification TypeScript + build production
 npm run preview    # preview du build
 ```
 
+## Modes de données
+
+- **Mode cloud** : si `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` sont
+  définies, l'application utilise Supabase. C'est le mode de production, requis
+  pour la station Premier League (compétition, fixtures, temps réel).
+- **Mode local** : sans ces variables, l'application utilise le stockage du
+  navigateur. Pratique pour développer ou tester le moteur de scoring hors
+  ligne ; la station affiche alors « Mode de scoring local ».
+
+La clé anon Supabase est publique par nature. La protection repose sur les
+policies RLS côté base : lectures publiques nécessaires au live, écritures
+Premier League réservées aux utilisateurs authentifiés.
+
 ## Configuration Supabase
 
-Le backend cloud est optionnel. Pour l'activer:
-
-1. Creer un projet Supabase.
-2. Executer les migrations SQL dans `supabase/migrations/`, dans l'ordre.
-3. Creer un utilisateur admin dans Supabase Auth.
-4. Copier `.env.example` vers `.env.local`.
-5. Renseigner:
+1. Créer un projet Supabase.
+2. Exécuter les migrations de `supabase/migrations/`, dans l'ordre (`0001` à
+   `0008`).
+3. Créer les comptes marqueurs / organisateur dans Supabase Auth.
+4. Copier `.env.example` vers `.env.local` et renseigner :
 
 ```bash
 VITE_SUPABASE_URL=https://YOUR-PROJECT.supabase.co
 VITE_SUPABASE_ANON_KEY=YOUR-ANON-PUBLIC-KEY
 ```
 
-Voir [SUPABASE_SETUP.md](SUPABASE_SETUP.md) pour le detail.
-
-## Documentation utilisateur
-
-- [FONCTIONNALITES.md](FONCTIONNALITES.md): inventaire fonctionnel exhaustif,
-  avec distinction entre l'application actuellement publiée, les services
-  internes et les modules historiques non exposés.
-- [MODE_D_EMPLOI.md](MODE_D_EMPLOI.md): guide d'utilisation pour lancer un
-  match, scorer, suivre le live, gerer le championnat et consulter les stats.
-- [TEST_PLAN.md](TEST_PLAN.md): checklist de verification manuelle.
-- [SUPABASE_SETUP.md](SUPABASE_SETUP.md): configuration du backend cloud.
-
-## Parcours principaux
-
-### Nouveau match d'entrainement
-
-Route: `#/new`
-
-Le joueur choisit le format du match, les participants, le nombre de legs et le
-starter. Le match est sauvegarde automatiquement et peut etre repris depuis
-l'accueil.
-
-### Match de championnat
-
-Route: `#/championship/new`
-
-Ce parcours demande une connexion admin. Les Jedis sont selectionnes par defaut
-comme equipe a domicile, mais l'utilisateur peut choisir une autre equipe si un
-match exceptionnel l'exige. Une rencontre contient 10 matchs: 4 simples, 2
-doubles, puis 4 simples.
-
-### Live
-
-Route: `#/live`
-
-Le live est public et en lecture seule. Il permet de suivre les matchs en cours
-depuis un telephone, une tablette ou le QR code affiche sur l'accueil.
-
-### Statistiques
-
-Route: `#/admin/stats`
-
-La zone statistiques est protegee par login admin. Elle affiche les stats
-championnat, les profils joueurs, l'historique des matchs et un export CSV
-securise contre l'injection de formules tableur.
+Détails dans [SUPABASE_SETUP.md](SUPABASE_SETUP.md).
 
 ## Architecture
 
 ```text
 src/
-  App.tsx                     Routes principales
+  App.tsx                     Routes publiées
   main.tsx                    Bootstrap React, providers, HashRouter
-  components/                 Composants partages
-  components/ui/              UI generique: Button, Modal, Loading, ConfirmProvider
+  components/                 Composants partagés (ui/: Button, Modal, Loading…)
   data/                       Contrats repository/auth + backends local/Supabase
-  domain/                     Moteur pur: scoring, validation, stats
-  domain/championship/        Moteur pur des rencontres par equipes
-  features/                   Ecrans par domaine fonctionnel
-    admin/                    Joueurs, equipes, stats, championnat admin
-    championship/             Creation et deroulement des rencontres
-    game/                     Scoring en cours
-    home/                     Accueil
-    live/                     Watch live
-    setup/                    Nouveau match d'entrainement
-    stats/                    Ecran de fin de match
-  hooks/                      Hooks React reutilisables
+  domain/                     Moteur pur : scoring, validation, stats
+  domain/premierLeague/       Format, tableaux et classement Premier League
+  domain/championship/        Moteur des rencontres par équipes (historique)
+  features/
+    scoringStation/           Station de board et connexion  (publié)
+    game/                     Écran de scoring               (publié)
+    live/                     Live en lecture seule          (publié)
+    admin/ championship/ home/ setup/ stats/ premierLeague/  (historiques)
+  hooks/                      Hooks React réutilisables
   lib/                        Helpers transverses
-  store/                      Contextes, persistence et orchestration UI
+  store/                      Contextes, persistance, verrou, dictionnaire FR/EN
 supabase/
-  migrations/                 Schema, RLS, realtime, championnat
-  seed_gdl_2025-2026.sql      Donnees optionnelles de depart
-public/
-  app-icon.png                Icone PWA
-  favicon.png                 Favicon
-  home-logo.png               Logo d'accueil
+  migrations/                 Schéma, RLS, realtime, Premier League
+public/                       Logo, favicon, icônes PWA
 ```
 
-## Modeles importants
+Principe clé : les composants UI ne réimplémentent pas les règles de
+fléchettes. Les règles restent dans `src/domain` ; l'UI consomme le résultat.
 
-- `GameConfig`: configuration initiale d'un match.
-- `GameEvent`: evenement ajoute au journal du match.
-- `MatchRecord`: match persiste avec `config`, `events`, statut et metadata.
-- `TeamRecord` / `TeamWithPlayers`: equipes de championnat.
-- `EncounterRecord`: rencontre de championnat complete.
-- `DartsRepository`: interface commune aux backends local et Supabase.
+## Sécurité
 
-Principe cle: les composants UI ne doivent pas reimplementer les regles de
-darts. Les regles restent dans `src/domain`, puis l'UI consomme le resultat.
-
-## Securite
-
-Elements deja en place:
-
-- Row-Level Security Supabase.
-- Auth admin pour les zones sensibles.
+- Row-Level Security Supabase, connexion obligatoire pour scorer.
 - Live public en lecture seule.
 - CSP dans `index.html`.
-- Pas de secret requis dans le code source.
-- Export CSV neutralisant les cellules pouvant etre interpretees comme formules.
-- Verrou de scoring par appareil pour limiter les reprises concurrentes.
+- Aucun secret dans le code source ; jamais de clé `service_role` côté client.
+- Verrou de scoring par appareil (heartbeat 8 s, expiration 20 s).
+- Toute nouvelle table Supabase doit être créée avec RLS et des policies
+  explicites.
 
-Points a garder en tete:
+## Tests et vérification
 
-- Le mode entrainement est volontairement simple et publiquement scorables.
-- Les donnees sensibles ne doivent jamais etre ajoutees dans `.env.example`,
-  `README.md`, `agent.md` ou les migrations.
-- Toute nouvelle table Supabase doit etre creee avec RLS et policies explicites.
-
-## Tests et verification
-
-Tests unitaires actuels:
-
-- moteur de scoring;
-- validation des scores;
-- checkouts;
-- statistiques joueurs;
-- moteur championnat.
-
-Avant une modification metier:
+Tests unitaires (Vitest) : moteur de scoring, validation des scores, checkouts,
+statistiques, format et classement Premier League, moteur championnat.
 
 ```bash
 npm test
 npm run build
 ```
 
-Avant une modification UI simple:
+Vérification manuelle : [TEST_PLAN.md](TEST_PLAN.md).
 
-```bash
-npm run build
-```
+## Déploiement GitHub Pages
 
-Pour une verification manuelle complete, voir [TEST_PLAN.md](TEST_PLAN.md).
+Le workflow `.github/workflows/deploy.yml` construit et publie l'application à
+chaque push sur `main`. Les secrets `VITE_SUPABASE_URL` et
+`VITE_SUPABASE_ANON_KEY` doivent être définis dans le dépôt GitHub. Le
+`HashRouter` permet de servir l'application sous un sous-chemin GitHub Pages
+sans configuration serveur.
 
-## Deploiement GitHub Pages
+## Documentation
 
-Le workflow GitHub Actions construit l'application a chaque push sur `main`.
-
-Pour le mode cloud en production, ajouter ces secrets ou variables dans le depot
-GitHub:
-
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
-
-Le routage utilise `HashRouter`, donc l'application fonctionne sous un chemin de
-projet GitHub Pages sans configuration serveur supplementaire.
-
-## Conseils de contribution
-
-- Faire des changements scopes et comprehensibles.
-- Ne pas casser la compatibilite des donnees deja stockees.
-- Ajouter les textes visibles dans `src/store/LangContext.tsx`.
-- Garder le moteur de scoring independant de React.
-- Eviter les refactors globaux sans objectif clair.
-- Lire [agent.md](agent.md) avant de travailler avec un assistant IA.
+- [FONCTIONNALITES.md](FONCTIONNALITES.md) : inventaire fonctionnel complet.
+- [MODE_D_EMPLOI.md](MODE_D_EMPLOI.md) : guide du marqueur un soir de match.
+- [TEST_PLAN.md](TEST_PLAN.md) : checklist de vérification manuelle.
+- [SUPABASE_SETUP.md](SUPABASE_SETUP.md) : configuration du backend.
+- [REPRODUCTION_PREMIER_LEAGUE.md](REPRODUCTION_PREMIER_LEAGUE.md) : reproduire
+  la couche Premier League dans une application sœur.
+- [agent.md](agent.md) : consignes pour contributeurs et assistants IA.
