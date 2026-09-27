@@ -1,7 +1,7 @@
 # Inventaire fonctionnel complet
 
 Ce document décrit l’ensemble des fonctionnalités présentes dans le programme
-**GDL Premier League Scoring** au 20 juillet 2026. Il couvre les fonctions
+**GDL Premier League Scoring** au 27 septembre 2026. Il couvre les fonctions
 visibles dans l’application publiée, les services qui travaillent en arrière-plan
 et les anciens modules toujours présents dans le code.
 
@@ -83,7 +83,9 @@ tournoi. Les écrans historiques correspondants sont décrits à la section 11.
 - Connexion obligatoire pour scorer un match Premier League lorsque Supabase
   Auth est disponible.
 - Reprise directe d’un match déjà lié à la fixture.
-- Pour un nouveau match, demande du joueur qui commence le premier leg.
+- Pour un nouveau match, demande du joueur qui commence le premier leg : la
+  pression sur un nom le sélectionne seulement, et un bouton de confirmation
+  distinct lance le match, ce qui permet de corriger un choix.
 - Alternance automatique du starter à chaque nouveau leg.
 - Création d’un match en 501, simple, Double Out, avec le nombre de legs à
   gagner imposé par le tour du tournoi.
@@ -105,6 +107,8 @@ tournoi. Les écrans historiques correspondants sont décrits à la section 11.
 - Affichage permanent des deux camps, de leurs scores restants et des legs
   gagnés.
 - Mise en avant du joueur qui doit lancer.
+- Bouton `⇄` dans le bandeau pour inverser le joueur qui commence le leg 1,
+  disponible uniquement avant la première fléchette du match.
 - Étoile à côté du joueur qui a commencé le leg courant.
 - Affichage du numéro du leg, de la variante X01 et de la règle Double Out.
 - Grand score central pour le joueur actif, avec diminution en direct pendant
@@ -143,8 +147,12 @@ tournoi. Les écrans historiques correspondants sont décrits à la section 11.
 
 - Pavé numérique tactile avec chiffres de 0 à 9.
 - Retour arrière, validation et effacement de la saisie.
-- Grand bouton de validation utilisable rapidement pendant un match.
+- Grand bouton de validation vert utilisable rapidement pendant un match.
 - Raccourcis de scores courants : 26, 41, 45, 59, 60, 81, 99, 100, 140 et 180.
+- Un raccourci supérieur ou égal au score restant est refusé directement sur
+  le bouton, qui clignote en rouge, sans atteindre la saisie.
+- Les raccourcis sont désactivés tant qu’un nombre est en cours de saisie au
+  pavé.
 - Support du clavier physique : chiffres, `Entrée`, `Retour arrière` et `Échap`.
 - Désactivation des raccourcis clavier globaux lorsqu’une fenêtre de dialogue
   doit recevoir la saisie.
@@ -196,7 +204,9 @@ tournoi. Les écrans historiques correspondants sont décrits à la section 11.
 - Pour une rencontre officielle, normalisation du score final en legs afin que
   le vainqueur atteigne bien le nombre de legs requis.
 - Annulation du dernier événement enregistré.
-- Modification d’une ancienne volée par pression sur la ligne correspondante.
+- Modification d’une ancienne volée par pression sur la ligne correspondante,
+  avec le même pavé numérique à l’écran que pour le scoring (sans clavier du
+  système) ; le premier chiffre tapé remplace le score pré-rempli.
 - Nouvelle validation complète du score lors d’une correction.
 - Modification du nombre de fléchettes si la volée corrigée devient un
   checkout.
@@ -363,6 +373,7 @@ tournoi.
 - Affichage du badge LIVE ou terminé, de la variante, du format et du nombre de
   legs nécessaires.
 - Affichage des deux camps, scores restants, legs gagnés et moyennes.
+- Après un bust, le reste affiché n’est jamais négatif.
 - Indication du camp qui doit lancer et, pour un double, du joueur précis.
 - Indication d’une situation de checkout.
 - Tableau chronologique des volées du leg courant.

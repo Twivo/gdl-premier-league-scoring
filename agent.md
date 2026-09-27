@@ -5,14 +5,16 @@ sur GDL Premier League Scoring.
 
 ## Objectif produit
 
-GDL Premier League Scoring est une application de scoring et de statistiques darts,
-orientee en priorite vers les matchs a domicile des Jedis.
+GDL Premier League Scoring est la station de scoring des soirees Premier League
+GDL: une tablette par board, qui affiche les matchs affectes a ce board et
+permet de les scorer. La creation de la competition et l'affectation des
+matchs sont faites par le site externe du tournoi.
 
 L'application doit rester:
 
 - rapide a utiliser pendant un match;
-- fiable pour les stats de championnat;
-- lisible sur mobile et tablette;
+- fiable pour les resultats et le classement Premier League;
+- lisible sur tablette, a environ 3 m du board;
 - compatible avec les donnees existantes;
 - utilisable en mode local sans Supabase;
 - utilisable en mode cloud avec Supabase.
@@ -32,20 +34,20 @@ L'application doit rester:
 
 ## Routes principales
 
-- `/`: accueil.
-- `/login`: page de connexion admin, ouverte par le bouton `Se connecter` de
-  l'accueil (l'accueil affiche `Se connecter` ou `Se deconnecter` selon la session).
-- `/new`: nouveau match d'entrainement.
-- `/game/:id`: match en cours.
-- `/live`: liste des matchs live.
-- `/live/:id`: live read-only d'un match.
-- `/championship/new`: creation rencontre championnat, login requis.
-- `/championship/:id`: deroulement rencontre championnat, login requis.
-- `/admin/players`: gestion joueurs.
-- `/admin/teams`: gestion equipes.
-- `/admin/stats`: statistiques joueurs.
-- `/admin/championship`: historique championnat.
-- `/admin/review`: bilan de saison.
+Routes publiees (voir `src/App.tsx`):
+
+- `/`: station de scoring (`features/scoringStation`): choix du board et
+  liste de ses matchs.
+- `/login`: connexion du marqueur ou de l'organisateur.
+- `/game/:id`: scoring d'un match.
+- `/live/:id`: live read-only d'un match (aussi la solution de repli quand un
+  autre appareil tient le verrou de scoring).
+- toute autre route: redirection vers `/`.
+
+Les ecrans historiques (accueil de club, entrainement `/new`, liste `/live`,
+championnat par equipes, admin joueurs/equipes/stats, organisation Premier
+League) sont toujours dans `src/features` mais leurs routes ont ete retirees.
+Ne pas les rebrancher sans demande explicite et verification complete.
 
 Le routeur est un `HashRouter`: les URLs finales utilisent `#/...`.
 
@@ -112,11 +114,18 @@ npm audit --json
 - L'ecran de scoring privilegie la lisibilite a distance (environ 3 m): gros
   chiffres pour les scores restants et le score central du joueur actif. Garder
   le clavier plus compact que les scores pour laisser voir l'historique.
-- Cible materielle: tablette d'au moins 11 pouces. Le scoring tient sans
-  debordement en paysage (deux colonnes, pave a droite) comme en portrait
-  (colonne unique). Sur >= lg, les touches du pave sont agrandies (lg:h-20)
-  pour de meilleures cibles tactiles; leur hauteur est factorisee dans la
-  constante `KEY_H` de `Keypad.tsx`.
+- Cible materielle: tablette tactile. Une tablette garde toujours une seule
+  colonne, en portrait comme en paysage, avec le pave ancre en bas et
+  l'historique juste au-dessus; la vue gauche/droite est reservee aux ecrans
+  d'au moins 1 536 px pilotes a la souris. La hauteur des touches du pave est
+  factorisee dans la constante `KEY_H` de `Keypad.tsx`.
+- Les raccourcis de score (26 a 180) sont refuses sur place s'ils sont
+  superieurs ou egaux au reste, et desactives pendant une saisie au pave.
+- La correction d'une volee utilise le pave a l'ecran (pas le clavier du
+  systeme); le premier chiffre tape remplace le score pre-rempli.
+- Le joueur qui commence le leg 1 se choisit puis se confirme sur la station;
+  le bouton `⇄` du bandeau permet de l'inverser tant qu'aucune flechette n'a
+  ete lancee.
 - Sur ordinateur, le clavier physique pilote la saisie: chiffres 0-9, Entree
   (valider), Retour arriere (effacer un chiffre), Echap (tout effacer). Un
   seul ecouteur window keydown, cable via une ref pour rester valide sans se
@@ -132,7 +141,16 @@ npm audit --json
   « Configurer » vit alors dans la barre de controle, a cote de « Annuler ». Le
   bandeau revient entre les matchs (composition, stats, final).
 
-## Championnat
+## Premier League
+
+- Logique pure dans `src/domain/premierLeague` (format, tableaux, classement),
+  testee dans `src/domain/premierLeague/__tests__`.
+- 8 joueurs, 7 soirees (quarts, demies, finale en Best of 5), points 5/3/2,
+  Top 4 vers la Finals Night (demies Best of 9, finale Best of 11).
+- Le demarrage d'un match de fixture doit rester idempotent: jamais deux
+  matchs pour la meme fixture.
+
+## Championnat par equipes (module historique, non publie)
 
 - Le championnat est pense pour les Jedis a domicile.
 - Dans la selection des equipes, les Jedis sont preselectionnes a domicile.
@@ -165,7 +183,9 @@ npm audit --json
 ## Documentation
 
 - `README.md`: vue d'ensemble projet et architecture.
-- `MODE_D_EMPLOI.md`: guide utilisateur de l'application.
+- `FONCTIONNALITES.md`: inventaire fonctionnel complet (publie / interne /
+  historique).
+- `MODE_D_EMPLOI.md`: guide du marqueur un soir de match.
 - `SUPABASE_SETUP.md`: configuration backend cloud.
 - `TEST_PLAN.md`: verification manuelle.
 - `agent.md`: consignes pour assistants IA/contributeurs.
